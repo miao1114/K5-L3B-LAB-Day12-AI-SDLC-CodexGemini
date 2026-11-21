@@ -9,5 +9,3 @@
 | thehung1406 | [thehung1406.md](thehung1406.md) | Phản tư do thành viên bổ sung từ main |
 | daoanh9503 | [daoanh9503.md](daoanh9503.md) | Rút gọn ghi chép sẵn có, bản gốc daongocanh.md giữ nguyên |
 
-doanconghai.md, nguyenducminh.md và daongocanh.md là bản tên thật được giữ để không
-làm mất liên kết lịch sử. Không tự điền lời trải nghiệm còn thiếu thay thành viên.
