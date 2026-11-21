@@ -1,0 +1,6 @@
+# thehung1406 — phản tư cá nhân (≤ 200 từ)
+
+- **Tôi đã làm** giao diện Gather và Quán bằng Canvas 2D ở [Phase 1](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/540d13d0eda95099cb7f1badc8a836fda6901b5d), bổ sung giao diện vòng ngày ở [Phase 2](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/5028e8c6aa47df530644459f0dce33c9472f31e9) và hiển thị ID, độ tươi, trạng thái giữ chỗ của từng nguyên liệu ở [Phase 3](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/efaa53e9b968b172c5a54852ee92fab7a069f8e9).
+- **Tôi đã review** phần giao diện của mình trên Chrome, từ điều khiển đến bàn giao kho. Tôi kiểm tra hàng ở 30% không bị gắn nhãn ươn, còn hàng ở 29,99% có nhãn. [Bằng chứng kiểm chứng](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/blob/efaa53e9b968b172c5a54852ee92fab7a069f8e9/docs/verification/phase-3-p3-05.md).
+- **AI sai ở đâu và tôi phát hiện thế nào.** Công cụ kiểm tra tôi dùng với Codex áp tiêu chí của trang giới thiệu lên màn chơi. Tôi đọc báo cáo, thấy cảnh báo về hero và nút kêu gọi hành động, rồi kiểm tra trực tiếp bố cục và thao tác trên Chrome. [Ghi chú Phase 1](../proof/phase-1/frontend.md).
+- **Điều tôi học được.** Dữ liệu mô phỏng thật và các ca sát ngưỡng giúp tôi phát hiện lỗi hiển thị mà ảnh chụp màn hình khó cho thấy.
