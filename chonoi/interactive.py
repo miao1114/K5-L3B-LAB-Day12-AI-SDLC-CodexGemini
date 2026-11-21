@@ -1,15 +1,18 @@
 """Explicit web-only gameplay extensions. Standard runner never imports this module."""
 from collections import Counter
 from copy import deepcopy
+import math
 
 from .day_config import gather_tuning
 from .errors import BadInput
 from .extensions import enabled, validate_extensions
+from .ids import sort_by_id
 from .interactive_menu import resource_tuning, target_slots, unlocked_menu, web_scenario
+from .interactive_world import world_tuning
 from .inventory import clone_items, items_to_counts
 from .runner import Session
 from .sim.day import DaySim
-from .sim.gather import GatherSim
+from .sim.gather import TICK, GatherSim
 from .sim.monsters import step_monsters
 from .sim.quan import QuanSim
 from .sim.reservations import FINAL, make_reservations
@@ -22,12 +25,85 @@ def web_tuning(tuning, config):
     return contract["tuning"]
 
 
-class InteractiveGather(GatherSim):
+def sprint_multiplier(config):
+    """Hệ số tốc độ khi giữ nút chạy nhanh (web). 1 = tắt; kẹp trong [1, 3]."""
+    value = config.get("sprint_multiplier", 1)
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not 1 <= value <= 3:
+        raise BadInput("sprint_multiplier phải trong [1, 3]")
+    return float(value)
+
+
+class SprintMixin:
+    """Giữ nút `sprint` thì tốc độ bơi/đi nhân `sprint_multiplier` (chỉ bản web; ramp, biên, dòng lũ giữ nguyên)."""
+    SPEED_KEY = None
+    sprint_multiplier = 1.0
+
+    def _move(self, inp):
+        if self.sprint_multiplier <= 1 or not inp.held.get("sprint"):
+            return super()._move(inp)
+        saved = self.t
+        self.t = {**saved, self.SPEED_KEY: saved[self.SPEED_KEY] * self.sprint_multiplier}
+        try:
+            return super()._move(inp)
+        finally:
+            self.t = saved
+
+
+class InteractiveGather(SprintMixin, GatherSim):
+    SPEED_KEY = "swim_speed"
     """Slots reference IDs; inventory items remain exactly {id,kind,fresh}."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Preloaded items have no catch provenance: each starts in its own slot.
         self.slots = [[item["id"]] for item in self.hold_items]
+        self.wander = {}  # fish id -> {"target": hướng muốn tới, "next": tuổi chọn hướng mới}
+
+    # Cá lượn tự nhiên (chỉ khi `natural_fish`): đổi hướng từ từ, ưu tiên bơi ngang, nhịp lệch nhau.
+    # Vẫn dùng stream `fish_swim` nên tất định theo seed; vị trí/hitbox là vị trí simulation thật.
+    WANDER_TURN_DEG_PER_TICK = 1.5
+    WANDER_PITCH_DEG = 28
+
+    def _move_fish(self):
+        if not self.t.get("natural_fish"):
+            return super()._move_fish()
+        distance = self.t["fish_speed"] / TICK
+        turn = self.t["fish_turn_ticks"]
+        rng = self.rng.get("fish_swim")
+        alive = set()
+        for fish in sort_by_id(self.fish):
+            alive.add(fish["id"])
+            fish["age_ticks"] += 1
+            state = self.wander.get(fish["id"])
+            if state is None:
+                state = self.wander[fish["id"]] = {
+                    "target": self._level(fish["heading_deg"], math.cos(math.radians(fish["heading_deg"])) >= 0),
+                    "next": fish["age_ticks"] + rng.randint(turn // 2, 2 * turn)}
+            if fish["age_ticks"] >= state["next"]:
+                right = math.cos(math.radians(state["target"])) >= 0
+                if rng.random() < 0.3:
+                    right = not right
+                pitch = rng.uniform(-self.WANDER_PITCH_DEG, self.WANDER_PITCH_DEG)
+                state["target"] = pitch % 360 if right else (180 - pitch) % 360
+                state["next"] = fish["age_ticks"] + rng.randint(turn, 3 * turn)
+            diff = (state["target"] - fish["heading_deg"] + 180) % 360 - 180
+            step = max(-self.WANDER_TURN_DEG_PER_TICK, min(self.WANDER_TURN_DEG_PER_TICK, diff))
+            heading = (fish["heading_deg"] + step) % 360
+            angle = math.radians(heading)
+            x, d = fish["pos"]
+            x, reflect_x = self._reflect(x, math.cos(angle) * distance, self.t["fish_x"])
+            d, reflect_d = self._reflect(d, math.sin(angle) * distance, self.t["fish_depths"][fish["kind"]])
+            if reflect_x:  # chạm mép sông: quay đầu cả hướng hiện tại lẫn hướng muốn tới, không kẹt mép
+                heading, state["target"] = (180 - heading) % 360, (180 - state["target"]) % 360
+            if reflect_d:
+                heading, state["target"] = -heading % 360, -state["target"] % 360
+            fish.update(pos=[x, d], heading_deg=heading)
+        self.wander = {k: v for k, v in self.wander.items() if k in alive}
+
+    @classmethod
+    def _level(cls, heading, right):
+        pitch = max(-cls.WANDER_PITCH_DEG, min(cls.WANDER_PITCH_DEG,
+                    math.degrees(math.asin(max(-1.0, min(1.0, math.sin(math.radians(heading))))))))
+        return pitch % 360 if right else (180 - pitch) % 360
 
     def _sync_slots(self):
         alive = {item["id"] for item in self.hold_items}
@@ -72,7 +148,8 @@ class InteractiveGather(GatherSim):
                                 "item_ids": list(slot)} for slot in self.slots]}
 
 
-class InteractiveQuan(QuanSim):
+class InteractiveQuan(SprintMixin, QuanSim):
+    SPEED_KEY = "walk_speed"
     def _can_continue(self):
         if any(c["state"] == "eating" for c in self.customers):
             return True
@@ -111,6 +188,7 @@ def new_stats(day):
 class InteractiveDaySim(DaySim):
     def __init__(self, tuning, scenario, seed, days, config):
         self.web_config = config
+        self.sprint = sprint_multiplier(config)
         self.results = []
         self.gather_inventory = []
         tuning = web_tuning(tuning, config)
@@ -130,6 +208,7 @@ class InteractiveDaySim(DaySim):
         self.phase = "gather"
         effective = gather_tuning(self.tuning, self.active_upgrades)
         effective, self.allowed_ingredients = resource_tuning(effective, self.unlocked_dishes)
+        effective = world_tuning(effective, self.web_config)  # sông dài hơn, chỉ ở bản web
         scenario = self.gather_scenario if self.day == 1 else {
             k: v for k, v in self.gather_scenario.items() if k != "hold"}
         for key in ("fish", "nodes"):
@@ -138,6 +217,7 @@ class InteractiveDaySim(DaySim):
         self.current = InteractiveGather(effective, scenario, self.streams, self.ids,
                                          day=self.day, active_upgrades=self.active_upgrades)
         self.current.reputation = self.reputation
+        self.current.sprint_multiplier = self.sprint
         # Khách đặt trước chỉ gọi món đã mở khóa tới Ngày này; công bố ngay sau phase_start(gather).
         self.reservations = (make_reservations(self.tuning, self.streams.get("reservations"),
                                                self.unlocked_dishes, self.quan_scenario)
@@ -152,6 +232,7 @@ class InteractiveDaySim(DaySim):
                                        inventory=clone_items(stock), economy={"money": self.money,
                                        "earned": self.earned, "reputation": self.reputation},
                                        reservations=self.reservations)
+        self.current.sprint_multiplier = self.sprint
         self.phase = "quan"
 
     def step(self, inp):

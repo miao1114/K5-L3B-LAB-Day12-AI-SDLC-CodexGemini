@@ -90,7 +90,8 @@ class InteractiveExtensions(unittest.TestCase):
         web.action("continue", {})
         snap = web.snapshot()["snapshot"]
         self.assertIn("current", snap)
-        self.assertEqual(snap["meta"]["current"], self.tuning["gather"]["current"])
+        expected = {**self.tuning["gather"]["current"], "speed": CONFIG["gather_world"]["current_speed"]}
+        self.assertEqual(snap["meta"]["current"], expected)  # bản web ghi đè tốc độ dòng lũ
         self.assertEqual(len(snap["reservations"]), 2)
 
     def test_config_without_extensions_keeps_previous_web_rules(self):
