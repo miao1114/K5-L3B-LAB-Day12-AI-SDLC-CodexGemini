@@ -332,7 +332,8 @@ def create_server(preview, port=0):
             self.send_header("Cache-Control", "public, max-age=300" if kind == "image/webp" else "no-store")
             self.end_headers()
             try:
-                self.wfile.write(payload)
+                for i in range(0, len(payload), 65536):  # khúc 64 KB, xem chonoi/live.py _send
+                    self.wfile.write(payload[i:i + 65536])
             except ConnectionError:
                 # Poll requests may be cancelled when the browser navigates/closes.
                 pass

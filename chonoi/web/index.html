@@ -314,6 +314,7 @@
         <span><kbd>E</kbd> <span id="interact-key">Tương tác</span></span>
         <span id="catch-key" hidden><kbd>Space</kbd> Bắt cá</span>
         <span id="restart-key"><kbd>R</kbd> Chơi lại</span>
+        <span id="sprint-key" hidden><kbd>Shift</kbd> Chạy nhanh</span>
         <span id="pause-key" hidden><kbd>P</kbd><kbd>Esc</kbd> Tạm dừng</span>
       </div>
     </section>
@@ -428,6 +429,7 @@ const movement = {
 let writes = Promise.resolve(), lastInput = "", needsRelease = false, releasePending = false;
 const canPlay = () => snap && !snap.finished && !snap.error && !problem && !restartPending && !actionPending && !needsRelease && !day?.paused;
 const neutral = { move: [0, 0], interact: false, catch: false };
+const sprintEnabled = () => day?.sprint === true;  // chỉ bản web có nút chạy nhanh (giữ Shift)
 
 async function request(path, body) {
   const options = { signal: AbortSignal.timeout(2500), cache: "no-store" };
@@ -452,8 +454,9 @@ function sendInput(force = false) {
   const keys = Array.from(held, key => known(movement, key));
   const dx = Number(keys.includes("right")) - Number(keys.includes("left"));
   const dy = Number(keys.includes("down")) - Number(keys.includes("up"));
-  const body = JSON.stringify(force ? neutral : {
-    move: [dx, snap?.mode === "quan" ? -dy : dy], interact: held.has("e"), catch: held.has(" ")
+  const sprint = sprintEnabled() ? { sprint: !force && held.has("shift") } : {};
+  const body = JSON.stringify(force ? { ...neutral, ...sprint } : {
+    move: [dx, snap?.mode === "quan" ? -dy : dy], interact: held.has("e"), catch: held.has(" "), ...sprint
   });
   if (body === lastInput && !force) return;
   lastInput = body;
@@ -477,7 +480,7 @@ function release() {
   if (canPlay()) sendInput();
 }
 function isGameKey(k) {
-  return known(movement, k) || k === "e" || k === " ";
+  return known(movement, k) || k === "e" || k === " " || (k === "shift" && sprintEnabled());
 }
 addEventListener("keydown", event => {
   if (event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey) return;
@@ -641,6 +644,8 @@ function consumeEvents(events) {
     overlap -= 1;
   }
   for (const event of events.slice(overlap)) {
+    if ((event?.name === "fish_caught" || event?.name === "gather") && position(snap?.player?.pos))
+      splashes.push({ pos: [...snap.player.pos], at: performance.now(), surface: event.name === "gather" });
     if (event?.name === "current_warning") currentWarnAt = performance.now();
     if (event?.name === "current_start" || event?.name === "current_end") currentWarnAt = 0;
     const message = eventMessage(event);
@@ -660,6 +665,7 @@ function acceptState(state) {
   const changed = day?.screen !== nextDay?.screen || day?.day !== nextDay?.day ||
     snap?.mode !== nextSnap?.mode || (num(snap?.tick) && num(nextSnap?.tick) && nextSnap.tick < snap.tick);
   if (changed) {
+    cameraSnap = true;
     resetMessages();
     actionError = "";
     held.clear();
@@ -1024,6 +1030,7 @@ function render() {
   $("pause").disabled = actionPending || Boolean(problem) || Boolean(day?.error);
   $("restart-key").hidden = Boolean(day);
   $("pause-key").hidden = !day?.can_pause;
+  $("sprint-key").hidden = !sprintEnabled() || !["gather", "quan"].includes(snap?.mode);
   if (flow) {
     renderDay();
     return;
@@ -1217,11 +1224,35 @@ function pin(x, y, text, active = false) {
   ellipse(x, y, 4, 2, active ? "#ffe6a4" : "#cfab75");
   label(text, x, y + 14, active);
 }
+// Gather: ảnh nền gốc vẽ đúng `art_span_m` mét sông giữa GATHER_ART.left..right (tọa độ họa sĩ).
+// Sông dài hơn (bản web) thì nền nối dài và camera trượt ngang; chuẩn 100 m thì cameraX luôn = 0.
+const GATHER_ART = { left: .30, right: .96, top: .245, bottom: .89 };
+let cameraX = 0, cameraAt = 0, cameraSnap = true;  // cameraX: độ lệch nền, đơn vị = chiều rộng Canvas
+function gatherScale(xb) {
+  const span = num(snap?.meta?.view?.art_span_m) ? snap.meta.view.art_span_m : xb[1] - xb[0];
+  return (GATHER_ART.right - GATHER_ART.left) / span;  // chiều rộng Canvas trên mỗi mét
+}
+function gatherWorldWidth(xb) {  // tổng chiều dài nền cần vẽ, đơn vị chiều rộng Canvas
+  return GATHER_ART.left + gatherScale(xb) * (xb[1] - xb[0]) + (1 - GATHER_ART.right);
+}
+function updateCamera(now, xb, playerX) {
+  const max = Math.max(0, gatherWorldWidth(xb) - 1);
+  const target = Math.max(0, Math.min(max, GATHER_ART.left + gatherScale(xb) * (playerX - xb[0]) - .5));
+  if (cameraSnap || reducedMotion.matches || !(max > 0)) cameraX = target;
+  else cameraX += (target - cameraX) * (1 - Math.exp(-Math.max(0, now - cameraAt) / 160));
+  cameraAt = now;
+  cameraSnap = false;
+}
 function project(bounds, gather, w, h) {
   const x = bounds?.x, y = bounds?.[gather ? "d" : "z"];
   if (!position(x) || !position(y) || x[1] <= x[0] || y[1] <= y[0]) return null;
-  // Artist coordinates anchor the river surface and the deck to their respective backgrounds.
-  const [left, top, right, bottom] = gather ? [.30, .245, .96, .89] : [.13, .14, .79, .88];
+  if (gather) {
+    // world -> camera -> screen, dùng chung cho mọi vật thể trên bản đồ.
+    const scale = gatherScale(x), { left, top, bottom } = GATHER_ART;
+    return ([a, b]) => [w * (left + scale * (a - x[0]) - cameraX), h * (top + (bottom - top) * (b - y[0]) / (y[1] - y[0]))];
+  }
+  // Artist coordinates anchor the deck to its background.
+  const [left, top, right, bottom] = [.13, .14, .79, .88];
   return ([a, b]) => [
     w * (left + (right - left) * (a - x[0]) / (x[1] - x[0])),
     h * (top + (bottom - top) * (gather ? b - y[0] : y[1] - b) / (y[1] - y[0]))
@@ -1280,7 +1311,8 @@ function drawCurrent(at, size) {
     }
     ctx.restore();
     const left = Math.ceil(Math.max(0, snap.current.ticks_left) / tickRate());
-    label(`${dir > 0 ? "→" : "←"} Dòng lũ cuốn ${dir > 0 ? "sang phải" : "sang trái"} · còn ${left}s`, (x0 + x1) / 2, y0 + 14, true);
+    label(`${dir > 0 ? "→" : "←"} Dòng lũ cuốn ${dir > 0 ? "sang phải" : "sang trái"} · còn ${left}s`,
+      (Math.max(0, x0) + Math.min(canvas.clientWidth, x1)) / 2, y0 + 14, true);
     return;
   }
   // Nước êm: vạch mảnh báo ranh giới vùng sẽ bị cuốn; nhấp nháy khi có cảnh báo.
@@ -1297,35 +1329,187 @@ function drawCurrent(at, size) {
     ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
   }
   ctx.restore();
-  if (warning) label(`⚠ Sắp có dòng lũ — lên trên ${number(cfg.min_depth)} m!`, (x0 + x1) / 2, y0 + 14, true);
-  else label(`Vùng lũ ≥ ${number(cfg.min_depth)} m`, x1 - size, y0 + 12);
+  const cw = canvas.clientWidth, mid = (Math.max(0, x0) + Math.min(cw, x1)) / 2;
+  if (warning) label(`⚠ Sắp có dòng lũ — lên trên ${number(cfg.min_depth)} m!`, mid, y0 + 14, true);
+  else label(`Vùng lũ ≥ ${number(cfg.min_depth)} m`, Math.min(x1, cw) - size, y0 + 12);
 }
 
+// --- Nền Gather nối dài -------------------------------------------------------------------
+// Ảnh gốc không lặp liền được (bến bên trái, cây bên phải). Giữ nguyên ảnh, cắt tại ART_CUT (trước
+// mặt trời) và chèn các dải nước mở [ART_CUT - dải, ART_CUT] xen kẽ lật/không lật: dải lật bắt đầu
+// bằng đúng cột ART_CUT và dải thường kết thúc bằng cột ART_CUT, nên mọi mối nối khớp từng pixel.
+// Không kéo giãn ngang; chỉ vẽ đoạn nằm trong khung camera.
+const ART_CUT = .665, ART_MAX_STRIP = .33;
+const gatherArt = loadSprite("gather");
+let gatherArtRetries = 0;  // server local đôi khi trả lỗi ảnh lớn lúc vừa khởi động: thử lại vài lần
+gatherArt.addEventListener("error", () => {
+  if (gatherArtRetries++ < 3) setTimeout(() => { gatherArt.src = `art/gather.webp?retry=${gatherArtRetries}`; }, 700);
+});
+function drawGatherBackground(w, h, total) {
+  const iw = gatherArt.naturalWidth, ih = gatherArt.naturalHeight;
+  if (!iw) return;
+  const extra = total - 1, pairs = Math.ceil(extra / (2 * ART_MAX_STRIP)), strip = extra / (2 * pairs);
+  const segments = [[0, ART_CUT, false]];
+  for (let i = 0; i < pairs; i++) segments.push([ART_CUT - strip, ART_CUT, true], [ART_CUT - strip, ART_CUT, false]);
+  segments.push([ART_CUT, 1, false]);
+  let start = -cameraX;
+  for (const [a, b, flip] of segments) {
+    const left = Math.floor(start * w), width = Math.ceil((b - a) * w) + 1;  // +1 px chống hở mối nối
+    start += b - a;
+    if (left + width < 0 || left > w) continue;
+    ctx.save();
+    if (flip) { ctx.translate(left + width, 0); ctx.scale(-1, 1); } else ctx.translate(left, 0);
+    ctx.drawImage(gatherArt, a * iw, 0, (b - a) * iw, ih, 0, 0, width, h);
+    ctx.restore();
+  }
+}
+
+// --- Sinh vật nền & hiệu ứng (chỉ giao diện, không nằm trong snapshot, không bắt được) --------
+const AMBIENT_FISH = 18, AMBIENT_BUBBLES = 22;
+const hash = n => { const v = Math.sin(n * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+function drawAmbient(at, size, now, xb, w) {
+  const span = xb[1] - xb[0], t = reducedMotion.matches ? 0 : now / 1000;
+  // Cá nền: bóng mờ nhỏ, bơi qua lại trong một quãng, hơi nhấp nhô theo độ sâu.
+  ctx.save();
+  for (let i = 0; i < AMBIENT_FISH; i++) {
+    const range = 8 + hash(i + 1) * 18, omega = (.5 + hash(i + 2) * .7) / range;
+    const phase = hash(i + 3) * 6.283, base = xb[0] + 4 + hash(i + 4) * (span - 8);
+    const wx = base + range * Math.sin(t * omega + phase);
+    const wd = 4 + hash(i + 5) * 22 + 1.1 * Math.sin(t * .7 + phase);
+    const [x, y] = at([wx, wd]);
+    if (x < -40 || x > w + 40) continue;
+    const dir = Math.cos(t * omega + phase) >= 0 ? 1 : -1, s = size * (.16 + hash(i + 6) * .1);
+    const wag = Math.sin(t * 9 + phase) * s * .18;
+    ctx.globalAlpha = .22 + hash(i + 7) * .12;
+    ctx.fillStyle = "#0d3b36";
+    ctx.beginPath();
+    ctx.ellipse(x, y, s, s * .38, 0, 0, Math.PI * 2);
+    ctx.moveTo(x - dir * s * .85, y);
+    ctx.lineTo(x - dir * s * 1.45, y - s * .42 + wag);
+    ctx.lineTo(x - dir * s * 1.45, y + s * .42 + wag);
+    ctx.fill();
+  }
+  // Bọt nước nổi lên rồi tan ở mặt nước.
+  ctx.globalAlpha = .45;
+  ctx.strokeStyle = "#dff6ee";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < AMBIENT_BUBBLES; i++) {
+    const wx = xb[0] + hash(i + 40) * span, cycle = 6 + hash(i + 41) * 6;
+    const k = ((t + hash(i + 42) * cycle) % cycle) / cycle;
+    const [x, y] = at([wx + Math.sin(t * 2 + i) * .4, 28 - k * 27.5]);
+    if (x < -10 || x > w + 10) continue;
+    ctx.beginPath();
+    ctx.arc(x, y, 1.5 + hash(i + 43) * 2.2, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+const splashes = [];
+function drawSplashes(at, size, now) {
+  for (let i = splashes.length - 1; i >= 0; i--) {
+    const k = (now - splashes[i].at) / 600;
+    if (k >= 1 || reducedMotion.matches) { splashes.splice(i, 1); continue; }
+    const [x, y] = at(splashes[i].pos);
+    ctx.save();
+    ctx.globalAlpha = 1 - k;
+    ctx.strokeStyle = "#f2fff9";
+    ctx.lineWidth = 2;
+    for (const r of [.35, .6]) {
+      ctx.beginPath();
+      ctx.ellipse(x, y, size * r * (.4 + k), size * r * (.4 + k) * (splashes[i].surface ? .35 : .8), 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+// Vòng tầm bắt cá quanh Bà Út (đúng catch_radius của simulation, cùng phép chiếu với cá).
+function drawCatchRing(at, player, shown) {
+  const r = snap.meta.catch_radius;
+  if (!num(r) || player.at_surface !== false) return;
+  const [x, y] = at(shown), [xr] = at([shown[0] + r, shown[1]]), [, yr] = at([shown[0], shown[1] + r]);
+  const ready = !(player.catch_cd_ticks > 0) && list(snap.fish).some(f => near(player.pos, f.pos, r));
+  ctx.save();
+  ctx.setLineDash([5, 5]);
+  ctx.lineWidth = ready ? 2 : 1.2;
+  ctx.strokeStyle = ready ? "#ffe08add" : "#e9fff866";
+  ctx.beginPath();
+  ctx.ellipse(x, y, Math.abs(xr - x), Math.abs(yr - y), 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+// Chỉ hướng về bến: khoảng cách thật từ vị trí simulation; mũi tên ở mép khi bến ra khỏi khung.
+function drawDockGuide(at, w, h) {
+  const dock = snap.meta.dock_pos, p = snap.player?.pos;
+  if (!position(dock) || !position(p)) return;
+  const distance = Math.hypot(p[0] - dock[0], p[1] - dock[1]);
+  const [dx, dy] = at(dock);
+  if (dx >= 0 && dx <= w) {
+    if (distance > (snap.meta.dock_radius ?? 0) + .5) label(`Bến · ${Math.round(distance)} m`, dx, dy - 30);
+    return;
+  }
+  const left = dx < 0, text = `${left ? "◀" : ""} Bến ${Math.round(distance)} m ${left ? "" : "▶"}`.trim();
+  ctx.save();
+  ctx.font = "800 13px system-ui, sans-serif";
+  const width = ctx.measureText(text).width + 18, height = 24, y = Math.max(20, Math.min(h - 20, dy));
+  const x = left ? 10 : w - 10 - width;
+  ctx.fillStyle = "#1d3a33e6";
+  ctx.strokeStyle = "#f5d295";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(x, y - height / 2, width, height, 12);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#fff1d4";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x + width / 2, y + 1);
+  ctx.restore();
+}
+// Cá gameplay: vẽ đúng vị trí simulation (đã nội suy); chỉ thêm quay đầu mềm, lắc đuôi, nhấp nhô nhẹ.
+const fishAnim = new Map();
+let fishAnimAt = 0;
+
 function drawGather(at, size) {
+  const w = canvas.clientWidth, h = canvas.clientHeight, now = performance.now(), xb = snap.meta.bounds.x;
+  const dt = Math.min(.1, Math.max(0, (now - fishAnimAt) / 1000));
+  fishAnimAt = now;
+  const onScreen = x => x > -size * 1.5 && x < w + size * 1.5;  // chỉ vẽ vật thể trong/gần khung camera
+  drawAmbient(at, size, now, xb, w);
   drawCurrent(at, size);
-  if (position(snap.meta.dock_pos)) pin(...at(snap.meta.dock_pos), "Bến");
+  if (position(snap.meta.dock_pos) && onScreen(at(snap.meta.dock_pos)[0])) pin(...at(snap.meta.dock_pos), "Bến");
   for (const node of list(snap.nodes)) {
     if (!position(node.pos)) continue;
     const [x, y] = at(node.pos);
+    if (!onScreen(x)) continue;
     const image = known(plants, node.kind);
-    if (node.ready === true && image) drawSprite(image, x, y, size * .47, 0, 1, .75);
+    if (node.ready === true && image) drawSprite(image, x, y + (reducedMotion.matches ? 0 : Math.sin(now / 700 + x) * 1.2), size * .47, 0, 1, .75);
     else if (node.ready === false && num(node.regrow_ticks)) {
       ellipse(x, y, 6, 3, "#334833");
       label(countdown(node.regrow_ticks), x, y + 15);
     }
   }
+  const seen = new Set();
   for (const fish of list(snap.fish)) {
     const image = fish.kind === "ca_keo" ? fishKeo : known(fishSprites, fish.kind);
     if (!image || !position(fish.pos)) continue;
+    seen.add(fish.id);
     const [x, y] = at(visualPos(fish, "fish"));
     const heading = num(fish.heading_deg) ? fish.heading_deg * Math.PI / 180 : 0;
     const facing = (Math.cos(heading) < 0 ? 1 : -1) * (fish.kind === "ca_keo" ? -1 : 1);
-    const bank = Math.sin(heading) * facing * -.34;
-    drawSprite(image, x, y, size * (fish.kind === "ca_loc" ? 1.05 : .72), bank, facing);
+    let anim = fishAnim.get(fish.id);
+    if (!anim) fishAnim.set(fish.id, anim = { facing, phase: hash(String(fish.id).length + x) * 6.283 });
+    anim.facing += (facing - anim.facing) * (reducedMotion.matches ? 1 : Math.min(1, dt * 9));  // quay đầu qua 0 = lật mềm
+    if (!onScreen(x)) continue;
+    const t = reducedMotion.matches ? 0 : now / 1000;
+    const bank = Math.sin(heading) * facing * -.34 + Math.sin(t * 7 + anim.phase) * .05;
+    const flip = Math.sign(anim.facing) * Math.max(.18, Math.abs(anim.facing));
+    drawSprite(image, x, y + Math.sin(t * 2.1 + anim.phase) * 1.4, size * (fish.kind === "ca_loc" ? 1.05 : .72), bank, flip);
   }
+  for (const id of fishAnim.keys()) if (!seen.has(id)) fishAnim.delete(id);
   for (const monster of list(snap.monsters)) {
     if (!position(monster.pos)) continue;
     const [x, y] = at(visualPos(monster, "monsters"));
+    if (!onScreen(x)) continue;
     const heading = num(monster.heading_deg) ? monster.heading_deg * Math.PI / 180 : Math.PI;
     const facing = Math.cos(heading) < 0 ? 1 : -1;
     drawSprite(crocodileArt, x, y, size * 1.7, Math.sin(heading) * facing * -.34, facing);
@@ -1334,10 +1518,12 @@ function drawGather(at, size) {
   }
   const player = snap.player;
   if (!position(player?.pos)) return;
-  const [x, y] = at(blendPosition(player.pos, previousPose?.player?.pos));
+  const shown = blendPosition(player.pos, previousPose?.player?.pos);
+  const [x, y] = at(shown);
   const heading = num(player.heading_deg) ? player.heading_deg * Math.PI / 180 : 0;
   const facing = Math.cos(heading) < 0 ? -1 : 1;
   const standing = player.at_surface !== false && near(player.pos, snap.meta.dock_pos, snap.meta.dock_radius);
+  drawCatchRing(at, player, shown);
   if (standing) {
     drawSprite(protagonist, x, y, size, 0, facing, .8);
     label("Bà Út", x, y - size * .8 - 10, true);
@@ -1355,6 +1541,8 @@ function drawGather(at, size) {
     else drawSprite(protagonist, x, y, size, facing * .53, facing);
     label("Bà Út", x, y + size * .45 + 11, true);
   }
+  drawSplashes(at, size, now);
+  drawDockGuide(at, w, h);
 }
 // Extension "reservations": biển đặt trước trên bàn (đang giữ bàn / sắp đến / đang chờ món).
 function drawReservation(r, x, y, size) {
@@ -1553,6 +1741,12 @@ function draw() {
   ctx.clearRect(0, 0, w, h);
   labels.length = 0;
   const gather = snap?.mode === "gather";
+  const xb = snap?.meta?.bounds?.x;
+  if (gather && position(xb) && position(snap.player?.pos)) {
+    const now = performance.now();
+    updateCamera(now, xb, blendPosition(snap.player.pos, previousPose?.player?.pos)[0]);
+    if (gatherWorldWidth(xb) > 1.001) drawGatherBackground(w, h, gatherWorldWidth(xb));
+  }
   const at = project(snap?.meta?.bounds, gather, w, h);
   if (!at) return;
   const size = Math.min(76, Math.max(33, w * .085));

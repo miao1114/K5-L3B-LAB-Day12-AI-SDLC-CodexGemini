@@ -8,6 +8,9 @@ from .inventory import items_to_counts
 from .sim.reservations import public
 
 
+BUTTONS_WEB = (*BUTTONS_V11, "sprint")  # sprint: giữ Shift để chạy nhanh (chỉ bản web)
+
+
 class InteractiveDayWeb:
     live_scenes = True
 
@@ -20,7 +23,7 @@ class InteractiveDayWeb:
 
     def _reset_clock(self):
         self.started, self.elapsed, self.scene_ticks = monotonic(), 0, 0
-        self.inputs = LiveInputs(BUTTONS_V11)
+        self.inputs = LiveInputs(BUTTONS_WEB)
 
     def _screen(self, screen):
         self.screen, self.paused = screen, False
@@ -57,7 +60,7 @@ class InteractiveDayWeb:
         if move is not None and not (isinstance(move, list) and len(move) == 2
                 and all(type(v) in (int, float) and -1 <= v <= 1 for v in move)):
             return False
-        buttons = {k: data[k] for k in ("interact", "catch") if k in data}
+        buttons = {k: data[k] for k in ("interact", "catch", "sprint") if k in data}
         if any(type(v) is not bool for v in buttons.values()):
             return False
         if not self.paused and self.screen in ("gather", "quan"):
@@ -80,7 +83,7 @@ class InteractiveDayWeb:
             self._screen({"day_intro": "gather", "evening_intro": "quan", "day_result": "shop"}[self.screen])
         elif action == "pause" and not self.paused and self.screen in ("gather", "quan", "shop"):
             self.elapsed += monotonic() - self.started
-            self.inputs = LiveInputs(BUTTONS_V11)
+            self.inputs = LiveInputs(BUTTONS_WEB)
             self.paused = True
         elif action == "resume" and self.paused:
             self.started, self.paused = monotonic(), False
@@ -102,7 +105,7 @@ class InteractiveDayWeb:
         sim = self.session.sim if self.session else None
         day = sim.day if sim else 1
         state = dict(mode="day", screen=self.screen, day=day, days=self.days, live_scenes=True,
-                     enhanced=True, paused=self.paused, tick_hz=self.tuning["tick_hz"],
+                     enhanced=True, sprint=self.config.get("sprint_multiplier", 1) > 1, paused=self.paused, tick_hz=self.tuning["tick_hz"],
                      can_pause=self.screen in ("gather", "quan", "shop"), events=list(self.events))
         if sim is None:
             return state

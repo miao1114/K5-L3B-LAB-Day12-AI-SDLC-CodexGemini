@@ -1,6 +1,9 @@
 {
   "customer_interval_s": 5,
+  "sprint_multiplier": 1.5,
   "extensions": ["current", "reservations"],
+  "gather_world": {"length_m": 200, "natural_fish": true, "swim_speed_multiplier": 1.5,
+                   "current_speed": 2, "monster_chase_speed": 7},
   "menu_unlocks": [
     {"day": 1, "dishes": ["goi_bong_sung", "ca_loc_nuong_trui"]},
     {"day": 2, "dishes": ["ca_keo_nuong"]},

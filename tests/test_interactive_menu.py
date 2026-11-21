@@ -9,6 +9,7 @@ from chonoi.errors import BadInput
 from chonoi.inputs import InputState
 from chonoi.interactive import InteractiveSession
 from chonoi.interactive_menu import target_slots, unlocked_menu
+from chonoi.interactive_world import world_tuning
 from chonoi.interactive_web import InteractiveDayWeb
 from chonoi.runner import Session
 from chonoi.scenario import load_scenario
@@ -53,13 +54,15 @@ class MenuUnlockTest(unittest.TestCase):
                 sim.day = day
                 sim._start_day()
                 g = sim.current
-                standard = Session("day", self.tuning, {}, 1, days=5).sim
+                # Bản web dùng sông dài hơn (gather_world): so với cùng bản đồ đã giãn, không với 100 m chuẩn.
+                world = world_tuning(self.tuning, self.config)
+                standard = Session("day", world, {}, 1, days=5).sim
                 standard.day = day
                 standard._start_day()
                 self.assertEqual(len(g.fish), self.tuning["gather"]["fish_initial"])
                 self.assertEqual(len({tuple(f["pos"]) for f in g.fish}), len(g.fish))
                 self.assertEqual(len(g.nodes), len(self.tuning["gather"]["nodes"]))
-                self.assertEqual([n["pos"] for n in g.nodes], [n["pos"] for n in self.tuning["gather"]["nodes"]])
+                self.assertEqual([n["pos"] for n in g.nodes], [n["pos"] for n in world["gather"]["nodes"]])
                 self.assertEqual({f["kind"] for f in g.fish} | {n["kind"] for n in g.nodes}, EXPECTED[day - 1])
                 self.assertEqual(g.snapshot()["monsters"], standard.current.snapshot()["monsters"])
                 for key in ("fish_initial", "fish_max", "fish_spawn_ticks", "regrow_s", "fish_yield", "fish_spawn_clearance"):

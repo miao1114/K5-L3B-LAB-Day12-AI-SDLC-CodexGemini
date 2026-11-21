@@ -157,7 +157,10 @@ class _Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "public, max-age=300" if ctype == "image/webp" else "no-store")
         self.end_headers()
-        self.wfile.write(body)
+        # Ghi từng khúc 64 KB: trên Windows, một lần write cả ảnh > 255 KB qua loopback đôi khi kẹt phần đuôi
+        # (thấy cả với `python -m http.server`), làm ảnh nền tải lỗi và test_serves_phase_two_art timeout.
+        for i in range(0, len(body), 65536):
+            self.wfile.write(body[i:i + 65536])
 
     def do_GET(self):
         path = self.path.split("?", 1)[0]
