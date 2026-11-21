@@ -15,7 +15,8 @@ class DaySim:
     # Extension đặt trước. Lớp con tự viết _start_day (vd. InteractiveDaySim) không tạo đơn -> coi như tắt.
     reservations = None
 
-    def __init__(self, tuning, scenario, seed, days):
+    def __init__(self, tuning, scenario, seed, days, *, repeat_plans=False):
+        self.repeat_plans = repeat_plans
         self.tuning = tuning
         self.gather_scenario = scenario.get("gather", {})
         self.quan_scenario = scenario.get("quan", {})
@@ -36,7 +37,9 @@ class DaySim:
 
     def _start_day(self):
         self.active_upgrades = self.upgrades.copy()
-        self.plan = self.plans[self.day]
+        plan_day = (self.day - 1) % len(self.plans) + 1 if self.repeat_plans else self.day
+        self.plan = ({**self.plans[plan_day], "day": self.day} if self.repeat_plans
+                     else self.plans[plan_day])
         self.phase = "gather"
         effective = gather_tuning(self.tuning, self.active_upgrades)
         gather_scenario = self.gather_scenario if self.day == 1 else {

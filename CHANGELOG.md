@@ -1,4 +1,15 @@
 # Changelog
+## v1.0.0 — ứng viên, chưa công bố
+
+- Phase 1: Gather/sinh tồn/thu thập, khách, bếp, phục vụ và thanh toán.
+- Phase 2: ba loài cá/cá sấu, 2 bếp/4 bàn/6 món, Day Loop/Shop, pause.
+- Phase 3: breaking change kho đếm thành items[] `{id,kind,fresh}`, reserved theo ID,
+  hao tươi/ươn, giá theo cá thể. V1.3 giữ schema v1.2, từ chối kho đếm cũ.
+- Phase 4: benchmark Canvas thật, soak 10 ngày, cảnh báo/High Contrast, manifest 1.3,
+  tài liệu và đóng gói ứng viên. Chưa gắn tag hoặc công bố GitHub Release.
+- Web riêng: map/camera/animation, stack linh, menu unlock/spawn, Auto End,
+  chỉ dẫn phục vụ; current/reservations chỉ bật theo cấu hình, giữ preset chuẩn.
+
 ## Unreleased
 
 - **Gather độ tươi (P3-01):** nguyên liệu trong giỏ hao 0.5/s từ tick sau khi nhặt; `spoiled` phát đúng một lần khi xuống dưới 30 với payload `{item_id, kind, location}`. `snapshot.hold` và `lost` của `faint`/`monster_hit` là mảng object `{id, kind, fresh}`. `gather_end` giữ nguyên `inventory.items`. Hằng số lấy từ `tuning.inventory`; khóa `initial_fresh` mới (100).

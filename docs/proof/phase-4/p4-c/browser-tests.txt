@@ -1,0 +1,13 @@
+test_customer_priority_eating_departure_and_threshold (__main__.WarningsAccessibility.test_customer_priority_eating_departure_and_threshold) ... ok
+test_evidence_and_canvas_contrast_ratios (__main__.WarningsAccessibility.test_evidence_and_canvas_contrast_ratios) ... ok
+test_monster_near_far_multiple_inactive_and_world_coordinates (__main__.WarningsAccessibility.test_monster_near_far_multiple_inactive_and_world_coordinates) ... ok
+test_oxygen_boundary_recovery_surface_and_upgrades (__main__.WarningsAccessibility.test_oxygen_boundary_recovery_surface_and_upgrades) ... ok
+test_pure_logic_does_not_mutate_snapshot (__main__.WarningsAccessibility.test_pure_logic_does_not_mutate_snapshot) ... ok
+test_scene_pause_resume_preference_reload_and_toggle (__main__.WarningsAccessibility.test_scene_pause_resume_preference_reload_and_toggle) ... ok
+test_simultaneous_warnings_do_not_overlap_canvas_or_hud (__main__.WarningsAccessibility.test_simultaneous_warnings_do_not_overlap_canvas_or_hud) ... ok
+test_storage_failure_and_reduced_motion_are_safe (__main__.WarningsAccessibility.test_storage_failure_and_reduced_motion_are_safe) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.772s
+
+OK

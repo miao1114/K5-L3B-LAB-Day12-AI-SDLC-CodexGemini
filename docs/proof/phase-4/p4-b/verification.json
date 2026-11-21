@@ -1,0 +1,19 @@
+{
+  "seed": 7,
+  "version": "1.3",
+  "determinism": "PASS",
+  "comparison": "all fields except duration_s",
+  "duration_s": [
+    5.2189902000000075,
+    5.236029499999859
+  ],
+  "days_completed": [
+    10,
+    10
+  ],
+  "crashes": [
+    0,
+    0
+  ],
+  "input_policy": "neutral inputs; actual Gather, Quan and Shop timers, no bot shortcuts"
+}

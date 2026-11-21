@@ -25,7 +25,7 @@ def load_contract(path=DEFAULT_PATH) -> dict:
     except (OSError, ValueError) as e:
         raise BadInput(f"không đọc được {path}: {e}")
     validate_tuning(c.get("tuning"))
-    if c.get("contract_version") == "1.2":
+    if c.get("contract_version") in ("1.2", "1.3"):
         inventory = c["tuning"].get("inventory")
         if not isinstance(inventory, dict) or set(inventory) != {
                 "initial_fresh", "gather_decay_per_s", "quan_decay_per_s", "spoil_threshold"}:

@@ -1,5 +1,16 @@
 # Nhật ký dùng AI (theo phase và theo người)
 
+## Phase 4 — miao1114 yêu cầu, Codex hỗ trợ
+
+- P4-A: đếm draw thật, 5 test toán, smoke 2 s, đúng một lượt đo 30 s.
+- P4-B: CLI v1.3 kế thừa; soak hai lượt 10 ngày thật; input trung tính, không giả tiền.
+- P4-C: cảnh báo snapshot, CSS/Canvas High Contrast; 8 test browser, sáu ảnh thật.
+- P4-D: audit, manifest, MIT do người dùng chọn/ảnh AI do người dùng xác nhận;
+  full regression một lần 304 test, một lỗi test khóa version cũ. Đổi kỳ vọng version
+  kế thừa, giữ test luật, chạy lại nhóm Quán 22/22 PASS; chuẩn bị docs/package.
+- Không đo token/chi phí, không tự viết trải nghiệm thành viên, không ghi Linux/Release
+  PASS khi chưa xác minh. Người dùng cần đọc lại diff trước phát hành.
+
 2026-11-21 — P3-04, người 4 (chưa cung cấp handle), Codex: đọc TICKET-03 → TICKET-02 → PRD-0, spec/interface/ADR và source thực; thêm helper tiêu IDs/giá theo fresh, nối vào Kitchen, giữ v1.1 trong khi chờ migration người 2/3. Viết 17 test mới và fixture/mock P3-03 có nhãn; 182 test pass, CLI v1.1 quan/day pass. Không triển khai stock decay/re-reserve production hoặc đổi Day/Shop; ghi rõ PARTIAL và probe stock cá thể exit 2. Prompt chính: thực hiện P3-04 và kiểm giá tick 1 =59, không chiếm P3-03. Không đo token/chi phí; chưa có xác nhận người dùng đã tự đọc lại diff. Proof: `docs/proof/phase-3/P3-04-results.json`.
 
 | Phase | Người | Công cụ / model | Việc | Token / chi phí ước tính | Ghi chú (AI sai ở đâu?) |

@@ -1,5 +1,13 @@
 # Clarify — câu hỏi và câu trả lời (PO ghi, cả nhóm dùng chung)
 
+## Quyết định tích hợp P4-D
+
+- Giữ team_size=6 theo TEAM và xác nhận người dùng về Ánh (Người 6); số 5 trong
+  prompt P4-D là không khớp thực tế đã xác nhận.
+- Người dùng xác nhận ảnh tự tạo bằng AI và chọn MIT cho mã nguồn; ghi CREDITS/LICENSE.
+- v1.3 kế thừa v1.2; chỉ soak lặp >5 ngày, headless Day chuẩn vẫn 1–5.
+- Không khai Linux clean clone, đủ reflections hoặc public Release khi chưa xác minh.
+
 | # | Ngày giờ | Câu hỏi | Trả lời / giả định | Ai quyết |
 |---|---|---|---|---|
 | 1 | 2026-11-21 | PRD-0 mục E/F quy định tên và payload sự kiện khách đến, `no_dish`, `customer_left`, thứ tự tick và cách chọn món thế nào? | Giảm kiên nhẫn đầu bước, xét khách rời sau tương tác, rồi xét khách mới nếu còn giờ. Chọn đều theo seed trong các món khả thi đã sắp theo ID. `customer_arrived` dùng `order_id,table_id,dish_id`, `no_dish` có data rỗng, `customer_left` dùng `order_id,table_id,reason,reputation`. | PRD-0 E/F |

@@ -1,4 +1,14 @@
 # Credits
+
+- Xác nhận của người phụ trách trong phiên tích hợp P4-D: toàn bộ ảnh nhóm cung cấp
+  (kể cả các ảnh từng được gọi là “Ảnh lab”) do người dùng tự tạo bằng AI, không phải
+  asset tải từ Stardew Valley. Các tên file bên dưới mô tả nguồn đầu vào nội bộ.
+- Nhóm chọn MIT cho mã nguồn, xem LICENSE. Xác nhận AI không thay thế điều khoản
+  của nhà cung cấp công cụ; không tự gán giấy phép bên thứ ba cho ảnh. Nhóm cần giữ
+  nguồn gốc/prompt và tuân thủ điều khoản công cụ khi phân phối ảnh.
+- Font: dùng font hệ thống Cambria/Times New Roman/system-ui/sans-serif, không nhúng
+  file font. Chưa có âm thanh ngoài. Runtime Python dùng thư viện chuẩn; Playwright
+  (Apache-2.0) và Chrome/Chromium là phụ thuộc kiểm thử cài riêng, không kèm ZIP.
 Liệt kê asset ngoài (nguồn, giấy phép CC0/CC-BY/MIT) và công cụ AI đã dùng.
 
 - Phase 1 frontend: pixel art Canvas 2D và biểu tượng SVG nội tuyến được tạo cho dự án bằng Codex. Không dùng ảnh, font hay âm thanh từ bên ngoài.

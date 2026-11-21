@@ -1,0 +1,8 @@
+test_itemized_basket_state_does_not_change_simulation (test_live.LiveServerTest.test_itemized_basket_state_does_not_change_simulation) ... ok
+test_serves_phase_two_art (test_live.LiveServerTest.test_serves_phase_two_art) ... ok
+test_state_input_and_clean_stop (test_live.LiveServerTest.test_state_input_and_clean_stop) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.249s
+
+OK

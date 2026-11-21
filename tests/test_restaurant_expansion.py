@@ -69,7 +69,8 @@ class RestaurantExpansion(unittest.TestCase):
         session.sim.pos = list(obj["pos"])
 
     def test_manifest_matches_ticket_restaurant_and_six_recipes(self):
-        self.assertEqual(load_contract()["contract_version"], "1.2")
+        # v1.3 inherits the same restaurant recipes/tuning from v1.2.
+        self.assertIn(load_contract()["contract_version"], ("1.2", "1.3"))
         self.assertEqual(self.hz, 60)
         self.assertEqual(self.q["stoves"], [{"id": "B1", "pos": [2, 8]}, {"id": "B2", "pos": [5, 8]}])
         self.assertEqual(self.q["tables"], [{"id": "T1", "pos": [9, 2]}, {"id": "T2", "pos": [13, 2]},

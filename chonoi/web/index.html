@@ -253,6 +253,28 @@
     .pause-actions { gap: 6px; margin-top: 8px; }
   }
 </style>
+<style>
+  .top { flex-wrap: wrap; }
+  .warnings { display: grid; gap: 4px; padding: 6px 12px; background: #1a1510; }
+  .warning { padding: 6px 10px; border: 2px solid #ffd166; border-radius: 5px;
+    color: #fff4dc; background: #402008; font: 700 16px/1.4 system-ui, sans-serif; }
+  [data-high-contrast="true"] { --ink: #fff; --soft: #eee; --paper: #000;
+    --paper-ink: #fff; --paper-soft: #eee; --paper-line: #fff; --line: #fff; --gold: #ff0; }
+  [data-high-contrast="true"] .warning { color: #fff; background: #000; border-color: #ff0; }
+  [data-high-contrast="true"] .warnings,
+  [data-high-contrast="true"] :is(.hud, .status, .keys, .ledger, .quest, .flow, .profile, .result) {
+    color: #fff; background: #000; border-color: #fff;
+  }
+  [data-high-contrast="true"] :is(.fact, .upgrade, .dish-card, .slot, kbd) {
+    color: #fff; background: #000; border-color: #fff;
+  }
+  [data-high-contrast="true"] :is(.danger, .metric .danger, .ticket .danger, .spoiled, .quest .complete) { color: #ff0; }
+  [data-high-contrast="true"] progress { --fill: #ff0; background: #444; }
+  [data-high-contrast="true"] progress::-webkit-progress-bar { background: #444; }
+  [data-high-contrast="true"] progress::-webkit-progress-value { background: #ff0; }
+  [data-high-contrast="true"] progress::-moz-progress-bar { background: #ff0; }
+  [data-high-contrast="true"] :focus-visible { outline-color: #fff; }
+</style>
 </head>
 <body>
 <a class="skip-link" id="skip" href="#playfield">Đến màn chơi</a>
@@ -271,6 +293,7 @@
     </div>
     <button id="restart" type="button">Chơi lại</button>
     <button id="pause" type="button" hidden>Tạm dừng</button>
+    <button id="high-contrast" type="button" aria-pressed="false">Tương phản cao: Tắt</button>
   </header>
   <section id="flow" class="flow" aria-labelledby="flow-title" hidden>
     <div id="flow-content"></div><p role="status" id="action-status"></p>
@@ -290,6 +313,7 @@
         </div>
         <div class="metrics" id="metrics"></div>
       </header>
+      <div id="warnings" class="warnings" role="status" aria-live="polite" aria-atomic="true" hidden></div>
       <div class="scene" data-visual>
         <canvas id="world" aria-label="Cảnh chơi của Bà Út">Cảnh chơi cần trình duyệt hỗ trợ Canvas.</canvas>
         <span class="hit-feedback" id="hit-feedback" aria-hidden="true" hidden></span>
@@ -345,6 +369,7 @@ const $ = id => document.getElementById(id);
 const canvas = $("world");
 const ctx = canvas.getContext("2d");
 let paintPending = true;
+const renderBenchmark = location.search === "?benchmark=render";
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const labels = [];
 const itemNames = {
@@ -793,10 +818,61 @@ function itemizedInventory(items, threshold, empty, reserved = new Set()) {
       <span class="inventory-fresh${spoiled ? " spoiled" : ""}"><b>${freshnessFormat.format(item.fresh)}%</b>${status ? `<small class="${spoiled ? "spoiled" : ""}">${status}</small>` : ""}</span></li>`;
   }).join("") + "</ul>";
 }
+const OXYGEN_WARNING_RATIO = 0.25;
+const MONSTER_WARNING_FALLBACK_M = 12;
+let highContrast = false;
+function lowOxygen(s) {
+  const p = s?.player;
+  return num(p?.oxygen_ticks) && num(p.oxygen_max_ticks) && p.oxygen_max_ticks > 0 &&
+    p.oxygen_ticks <= p.oxygen_max_ticks * OXYGEN_WARNING_RATIO;
+}
+function warningsFor(s) {
+  if (!s || s.finished || s.error || s.player?.hp === 0) return [];
+  const warnings = [];
+  if (s.mode === "gather") {
+    const p = s.player ?? {}, meta = s.meta ?? {};
+    const submerged = typeof p.at_surface === "boolean" ? !p.at_surface :
+      position(p.pos) && num(meta.surface_depth) && p.pos[1] > meta.surface_depth;
+    if (submerged && lowOxygen(s)) warnings.push({ kind: "oxygen", text: "SẮP HẾT OXY! HÃY NỔI LÊN!" });
+    const nearby = position(p.pos) && list(s.monsters).filter(m => {
+      if (!position(m.pos) || !["patrol", "chase", "recoil"].includes(m.state)) return false;
+      const radius = meta.monsters?.species?.[m.kind ?? "ca_sau"]?.detect_radius;
+      return near(p.pos, m.pos, num(radius) ? radius : MONSTER_WARNING_FALLBACK_M);
+    }).sort((a, b) => Math.hypot(a.pos[0] - p.pos[0], a.pos[1] - p.pos[1]) -
+      Math.hypot(b.pos[0] - p.pos[0], b.pos[1] - p.pos[1]));
+    if (nearby?.length) warnings.push({ kind: "monster", text: "CẨN THẬN! CÁ SẤU Ở GẦN!" });
+  } else if (s.mode === "quan") {
+    const urgent = list(s.customers).filter(c => {
+      const max = num(c.patience_max_ticks) ? c.patience_max_ticks : s.meta?.patience_s * tickRate();
+      return c.state === "waiting" && num(c.patience_ticks_left) && max > 0 &&
+        c.patience_ticks_left <= max * CUSTOMER_BAR_DANGER_RATIO;
+    }).sort((a, b) => a.patience_ticks_left - b.patience_ticks_left || String(a.table_id).localeCompare(String(b.table_id)));
+    if (urgent.length) warnings.push({ kind: "customer", text: `BÀN ${urgent[0].table_id} SẮP BỎ ĐI!` });
+  }
+  return warnings;
+}
+function renderWarnings() {
+  const playing = !day || ["gather", "quan"].includes(day.screen);
+  const warnings = !problem && playing ? warningsFor(snap) : [];
+  setHTML("warnings", warnings.map(w => `<div class="warning" data-warning="${w.kind}"><span aria-hidden="true">⚠ </span>${escapeHTML(w.text)}</div>`).join(""));
+  $("warnings").hidden = warnings.length === 0;
+}
+function applyContrast(value) {
+  highContrast = Boolean(value);
+  document.documentElement.dataset.highContrast = String(highContrast);
+  $("high-contrast").setAttribute("aria-pressed", String(highContrast));
+  setText("high-contrast", "Tương phản cao: " + (highContrast ? "Bật" : "Tắt"));
+  invalidate();
+}
+$("high-contrast").addEventListener("click", () => {
+  applyContrast(!highContrast);
+  try { localStorage.setItem("chonoi.highContrast", String(highContrast)); } catch {}
+});
+
 function renderGather(s) {
   renderDailyQuest(s);
   const p = s.player ?? {};
-  const low = num(p.oxygen_ticks) && p.oxygen_max_ticks > 0 && p.oxygen_ticks <= p.oxygen_max_ticks / 4;
+  const low = lowOxygen(s);
   const oxy = `<div class="metric${low ? " danger" : ""}"><span${low ? ' class="danger"' : ""}>${low ? "Oxy thấp — nổi lên!" : "Oxy"}</span>
     <div class="meter-line">${meter(p.oxygen_ticks, p.oxygen_max_ticks, "Oxy")}<strong>${countdown(p.oxygen_ticks)}${num(p.oxygen_max_ticks) ? " / " + countdown(p.oxygen_max_ticks) : ""}</strong></div></div>`;
   setHTML("metrics", metric("Còn lại", duration(s.time_left_ticks)) + oxy +
@@ -882,7 +958,7 @@ function renderQuan(s) {
     const waiting = c.state === "waiting" || c.state === "assigned";
     const patienceMax = num(c.patience_max_ticks) ? c.patience_max_ticks : s.meta?.patience_s * tickRate();
     const patience = waiting && num(c.patience_ticks_left) ?
-      `<span class="meter-line${patienceMax > 0 && c.patience_ticks_left <= patienceMax / 4 ? " danger" : ""}">
+      `<span class="meter-line${patienceMax > 0 && c.patience_ticks_left <= patienceMax * CUSTOMER_BAR_DANGER_RATIO ? " danger" : ""}">
         ${meter(c.patience_ticks_left, patienceMax, "Kiên nhẫn")}${countdown(c.patience_ticks_left)}</span>` : "";
     return `<p class="ticket">${dishArt(c.dish_id, "dish-preview")}<b>${escapeHTML(dishName(c.dish_id))}</b> · Bàn ${escapeHTML(c.table_id ?? "—")} · ${state}${patience}</p>`;
   }).join("") : `<p class="ticket">${Array.isArray(s.customers) ? "Chưa có khách gọi món" : "Đang chờ dữ liệu đơn hàng"}</p>`));
@@ -1017,6 +1093,7 @@ function renderDay() {
   lastFlow = view;
 }
 function render() {
+  renderWarnings();
   const mode = snap?.mode;
   const gather = mode === "gather";
   const flow = day && !["gather", "quan"].includes(day.screen);
@@ -1656,21 +1733,31 @@ const customerBarStyle = {
   eat: { fill: "#f2c335", text: "Đang ăn" },
   danger: { fill: "#e5483b", text: "⚠ Sắp bỏ đi" }
 };
+const customerBarContrastStyle = {
+  wait: { fill: "#00ff00", text: "Đang chờ" },
+  eat: { fill: "#ffff00", text: "Đang ăn" },
+  danger: { fill: "#ff6b6b", text: "⚠ Sắp bỏ đi" }
+};
 function drawCustomerBar(c, cx, bottom, size) {
   const status = customerStatus(c);
   if (!status) return;
-  const style = customerBarStyle[status.kind];
+  const style = (highContrast ? customerBarContrastStyle : customerBarStyle)[status.kind];
   const width = Math.max(40, Math.min(55, size * .72)), height = 6;
   const left = cx - width / 2, top = bottom - height;
   const ratio = Math.max(0, Math.min(1, status.ratio));
   // Nhịp chậm ~1,2 s cho trạng thái đỏ; tắt khi người dùng giảm chuyển động hoặc đang tạm dừng.
-  const pulse = status.kind === "danger" && !reducedMotion.matches && !day?.paused ?
+  const pulse = status.kind === "danger" && !highContrast && !reducedMotion.matches && !day?.paused ?
     .65 + .35 * Math.abs(Math.sin(performance.now() / 380)) : 1;
   ctx.save();
-  ctx.fillStyle = "#1a1510d9";
+  ctx.fillStyle = highContrast ? "#000" : "#1a1510d9";
   ctx.beginPath();
   ctx.roundRect(left - 2, top - 2, width + 4, height + 4, 4);
   ctx.fill();
+  if (highContrast) {
+    ctx.strokeStyle = "#fff";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
   ctx.globalAlpha = pulse;
   ctx.fillStyle = style.fill;
   if (ratio > 0) {
@@ -1683,9 +1770,9 @@ function drawCustomerBar(c, cx, bottom, size) {
   ctx.textAlign = "center";
   ctx.textBaseline = "bottom";
   ctx.lineWidth = 3;
-  ctx.strokeStyle = "#1a1510e6";
+  ctx.strokeStyle = highContrast ? "#000" : "#1a1510e6";
   ctx.strokeText(style.text, cx, top - 3);
-  ctx.fillStyle = status.kind === "danger" ? "#ffd2c9" : "#fff4dc";
+  ctx.fillStyle = highContrast ? "#fff" : status.kind === "danger" ? "#ffd2c9" : "#fff4dc";
   ctx.fillText(style.text, cx, top - 3);
   ctx.restore();
 }
@@ -1753,6 +1840,7 @@ function draw() {
   if (gather) drawGather(at, size);
   else drawQuan(at, size, w);
   drawLabels(w, h);
+  if (renderBenchmark && gather) window.onBenchmarkFrame?.(performance.now());
 }
 
 
@@ -1762,7 +1850,7 @@ function frame(now) {
   const playingDay = day && active;
   const blend = active && (playingDay || motionDelta > 0) && previousPose && !reducedMotion.matches ?
     Math.max(0, Math.min(1, (now - poseAt) / poseMs)) : 1;
-  if (paintPending || playingDay || blend !== visualBlend) {
+  if (paintPending || playingDay || blend !== visualBlend || (renderBenchmark && active)) {
     paintPending = false;
     visualBlend = blend;
     $("hit-feedback").hidden = !playingDay || reducedMotion.matches || now >= hitUntil;
@@ -1774,6 +1862,7 @@ new ResizeObserver(invalidate).observe(canvas);
 addEventListener("resize", invalidate);
 reducedMotion.addEventListener("change", invalidate);
 requestAnimationFrame(frame);
+try { applyContrast(localStorage.getItem("chonoi.highContrast") === "true"); } catch { applyContrast(false); }
 poll();
 </script>
 </body>

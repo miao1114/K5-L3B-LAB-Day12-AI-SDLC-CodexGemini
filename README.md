@@ -1,5 +1,58 @@
 # Day 12 — AI SDLC: Quán Ăn Chợ Nổi
 
+## Ứng viên v1.0.0 — Test Contract v1.3
+
+Chưa công bố Release/tag: xem `docs/verification/phase-4.md` và release notes để
+biết tiêu chí đã kiểm chứng/còn thiếu. Nhóm CodexGemini có **6 thành viên**.
+Mã nguồn MIT; nguồn ảnh AI của nhóm ghi tại CREDITS.
+
+### Clone sạch: ba lệnh trên macOS/Linux
+
+Cần Git và Python cài sẵn; runtime chỉ dùng thư viện chuẩn, không cần pip.
+Python 3.14 đã kiểm trên Windows; macOS/Linux cần kiểm xác nhận trước phát hành.
+
+```bash
+git clone https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini.git
+cd K5-L3B-LAB-Day12-AI-SDLC-CodexGemini
+python3 -m chonoi.live --mode day --days 5 --port 8783
+```
+
+Mở http://127.0.0.1:8783/. Từ ZIP đã giải nén: vào thư mục game rồi chạy lệnh Python
+thứ ba. Bản ứng viên còn trên nhánh updatelevel; khi clone trước merge phải chọn
+đúng nhánh/commit ứng viên, không giả định main đã chứa Phase 4.
+
+WASD/mũi tên di chuyển, Space bắt cá dưới nước, E hái/cập bến hoặc nấu/lấy/phục vụ.
+Trong Shop chọn nâng cấp hoặc rời để sang ngày; P/Esc tạm dừng. Nút “Tương phản cao”
+giữ lựa chọn trên browser. Cảnh báo cá sấu gần, oxy ≤25% và khách chờ ≤20% kiên nhẫn.
+
+### Kiểm chứng Phase 4
+
+```bash
+PYTHONPATH=tests:. python3 -m unittest discover -s tests -v
+python3 -m chonoi.headless --mode day --days 1 --seed 17 --ticks 22200 --out day.jsonl
+python3 -m chonoi.soak --seed 7 --days 10 --out soak.json
+python3 -m pip install -r requirements-benchmark.txt
+python3 -m playwright install chromium
+python3 -m chonoi.bench --seed 42 --duration 30 --out bench.json
+```
+
+Pip/browser chỉ cần cho benchmark/QA, không thuộc ba lệnh chơi game.
+Bench dùng Chrome nếu có, fallback Chromium. Windows dùng `.venv/Scripts/python.exe`
+hoặc python thật thay alias WindowsApps; thêm venv/Scripts vào PATH khi chạy suite.
+
+### Sáng tạo của nhóm
+
+Web mở rộng: bản đồ 200 m/camera, cá bơi/hoạt ảnh, chạy nhanh Shift, stack cá linh,
+menu mở khóa và nguồn nguyên liệu theo ngày, Auto End Quán, thống kê và Shop thật,
+nhãn bàn phục vụ/thanh trạng thái khách. Chạy bằng
+`python3 docs/proof/phase-2/day_fixture.py --real-scenes --days 5 --port 8783`.
+Current/reservations có code/test; manifest chuẩn để extensions=[] theo cấu hình
+đang được nhóm dùng, web bật qua cấu hình riêng. Không tự khai tính năng chưa test.
+
+Giới hạn: benchmark theo máy đo; chưa có xác nhận macOS/Linux hoặc screen reader;
+sidebar Quán có thể cuộn dọc. Soak dùng input trung tính, không phải bot thắng game.
+Các ghi chú/trạng thái phase cũ bên dưới là lịch sử, không phải nghiệm thu hiện tại.
+
 > **Làm theo nhóm 4–6 người** · Dùng AI để xây game 2D qua **4 phase** trong **3 giờ**: Út Sen lặn bắt cá, hái rau trên mặt nước rồi tối mở quán phục vụ khách.
 > **Yêu cầu từng phase mở đúng mốc giờ tại lab board:** **[Chợ Nổi Lab](https://claude.ai/artifact/E35v787wSx2wDgPTNhMVDg)** (cần đăng nhập claude.ai; có trợ giảng AI cho từng phase).
 
@@ -60,7 +113,8 @@ Xem [Fish Stack, Auto End và tiến trình 5 ngày](docs/notes/Fish-Stack-Auto-
 Kiểm chứng riêng unlock/spawn: `python3 -m unittest discover -s tests -p test_interactive_menu.py -v`
 và `python3 tools/verify_menu_unlock_browser.py`.
 
-Trạng thái kiểm chứng Phase 1 hiện tại: 46/47 test đạt; test ngất còn chờ tích hợp Lát 1 (xem [`docs/verification/phase-1.md`](docs/verification/phase-1.md)). Game cần chế độ **headless** theo Test Contract (`python3 -m chonoi.headless --mode gather|quan …`) để được chạy và chấm tự động. **Công nghệ không ràng buộc**: khung Python trong `chonoi/` chỉ là gợi ý, chi tiết ở [`docs/STARTER.md`](docs/STARTER.md).
+Trạng thái Phase 1 cũ được lưu trong verification lịch sử; nghiệm thu ứng viên hiện
+tại nằm ở `docs/verification/phase-4.md`. Headless hỗ trợ gather, quan, day theo v1.3.
 
 ### Buổi sáng — Gather
 
@@ -68,13 +122,16 @@ Trạng thái kiểm chứng Phase 1 hiện tại: 46/47 test đạt; test ngấ
 
 ### Hợp đồng file kho (`inventory`)
 
-Hai buổi có thể chạy bằng hai tiến trình headless: `gather --inventory-out kho.json` ghi kho khi có `gather_end`, rồi `quan --inventory kho.json` đọc cùng file. File JSON chỉ có khóa gốc `items`; mỗi khóa con là một trong `ca_loc`, `ca_linh`, `bong_dien_dien`, `bong_sung`, `ca_keo`, `keo_neo` (6 loại theo v1.1), giá trị là số nguyên không âm. Loại vắng mặt tính là 0; bên ghi bỏ khóa có lượng 0. Ví dụ hợp lệ:
+Hai tiến trình headless bàn giao bằng `gather --inventory-out kho.json` rồi
+`quan --inventory kho.json`. V1.3 kế thừa v1.2: gốc items là mảng cá thể
+id/kind/fresh, sáu loại nguyên liệu theo manifest. Ví dụ hợp lệ:
 
 ```json
-{"items":{"bong_sung":2,"ca_loc":1}}
+{"items":[{"id":"I1","kind":"ca_loc","fresh":97.5}]}
 ```
 
-Kho rỗng là `{"items":{}}`. Nếu Gather kết thúc do ngất thì ghi kho rỗng. Nếu chỉ dừng vì giới hạn `--ticks` trước khi kết thúc buổi sáng thì không tạo hoặc ghi đè file kho. Khi có `gather_end`, nội dung file phải khớp `gather_end.inventory` và được ghi bằng cách thay thế nguyên tử. Quán từ chối file sai schema hoặc nguyên liệu lạ (mã thoát 2).
+Kho rỗng là `{"items":[]}`. Ngất ghi kho rỗng; dừng do ticks trước gather_end không
+ghi kho. File ghi nguyên tử, giữ ID/fresh; kho đếm cũ hoặc schema sai trả mã 2.
 
 ## P2-04 — Quán mở rộng
 

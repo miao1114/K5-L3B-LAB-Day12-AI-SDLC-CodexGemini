@@ -61,7 +61,7 @@ def main(argv=None) -> int:
         if len(set(paths)) != len(paths):
             raise BadInput("các đường dẫn đầu vào/đầu ra phải khác nhau")
         contract = load_contract()
-        v11plus = contract["contract_version"] in ("1.1", "1.2")
+        v11plus = contract["contract_version"] in ("1.1", "1.2", "1.3")
         if a.mode == "day" and not v11plus:
             raise BadInput("--mode day có từ contract v1.1")
         tuning = contract["tuning"]

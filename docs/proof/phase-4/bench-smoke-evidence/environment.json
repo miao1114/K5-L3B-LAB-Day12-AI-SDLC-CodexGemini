@@ -1,0 +1,242 @@
+{
+  "browser": "157.0.8103.80",
+  "os": "Windows-11-10.0.26200-SP0",
+  "headless_browser": true,
+  "seed": 42,
+  "warmup_s": 3.0075,
+  "viewport": [
+    1280,
+    720
+  ],
+  "dpr": 1,
+  "canvas": [
+    672,
+    378
+  ],
+  "css": [
+    672,
+    378
+  ],
+  "scene": "core Gather, full simulation/animation; continuous draw only with benchmark query",
+  "snapshot": {
+    "type": "snapshot",
+    "tick": 374,
+    "sim_tick": 374,
+    "mode": "gather",
+    "phase": "gather",
+    "phase_tick": 374,
+    "state": "playing",
+    "time_left_ticks": 10426,
+    "money": 0,
+    "earned": 0,
+    "reputation": 3.0,
+    "score": 300,
+    "player": {
+      "pos": [
+        2.0,
+        0
+      ],
+      "vel": [
+        0.0,
+        0.0
+      ],
+      "heading_deg": 0.0,
+      "oxygen_ticks": 1800,
+      "oxygen_max_ticks": 1800,
+      "hp": 3,
+      "hp_max": 3,
+      "zero_oxy_ticks": 0,
+      "invuln_ticks": 0,
+      "catch_cd_ticks": 0,
+      "at_surface": true
+    },
+    "hold": [],
+    "hold_count": 0,
+    "hold_capacity": 12,
+    "nodes": [
+      {
+        "id": "N1",
+        "pos": [
+          12.0,
+          0.0
+        ],
+        "kind": "bong_dien_dien",
+        "ready": true,
+        "regrow_ticks": 0
+      },
+      {
+        "id": "N2",
+        "pos": [
+          28.0,
+          0.0
+        ],
+        "kind": "bong_dien_dien",
+        "ready": true,
+        "regrow_ticks": 0
+      },
+      {
+        "id": "N3",
+        "pos": [
+          44.0,
+          0.0
+        ],
+        "kind": "bong_sung",
+        "ready": true,
+        "regrow_ticks": 0
+      },
+      {
+        "id": "N4",
+        "pos": [
+          60.0,
+          0.0
+        ],
+        "kind": "bong_sung",
+        "ready": true,
+        "regrow_ticks": 0
+      },
+      {
+        "id": "N5",
+        "pos": [
+          76.0,
+          0.0
+        ],
+        "kind": "keo_neo",
+        "ready": true,
+        "regrow_ticks": 0
+      },
+      {
+        "id": "N6",
+        "pos": [
+          90.0,
+          0.0
+        ],
+        "kind": "keo_neo",
+        "ready": true,
+        "regrow_ticks": 0
+      }
+    ],
+    "fish": [
+      {
+        "id": "F1",
+        "kind": "ca_linh",
+        "pos": [
+          12.356637391843138,
+          8.61989131331563
+        ],
+        "heading_deg": 152.73898952203908,
+        "age_ticks": 379
+      },
+      {
+        "id": "F2",
+        "kind": "ca_keo",
+        "pos": [
+          19.52633608105301,
+          25.185585792757145
+        ],
+        "heading_deg": 271.2731911118742,
+        "age_ticks": 379
+      },
+      {
+        "id": "F3",
+        "kind": "ca_loc",
+        "pos": [
+          7.2304598220939305,
+          8.179803129281819
+        ],
+        "heading_deg": 332.34440798047245,
+        "age_ticks": 379
+      },
+      {
+        "id": "F4",
+        "kind": "ca_keo",
+        "pos": [
+          24.05283154243128,
+          25.860737214237613
+        ],
+        "heading_deg": 310.10454256081846,
+        "age_ticks": 379
+      },
+      {
+        "id": "F5",
+        "kind": "ca_keo",
+        "pos": [
+          58.21235882530931,
+          23.1796689654767
+        ],
+        "heading_deg": 346.8927787970849,
+        "age_ticks": 379
+      },
+      {
+        "id": "F6",
+        "kind": "ca_keo",
+        "pos": [
+          93.58281722465917,
+          27.35520430964091
+        ],
+        "heading_deg": 139.0794054762954,
+        "age_ticks": 379
+      },
+      {
+        "id": "F7",
+        "kind": "ca_linh",
+        "pos": [
+          59.656508675720985,
+          3.667484322638852
+        ],
+        "heading_deg": 250.77732579782275,
+        "age_ticks": 379
+      },
+      {
+        "id": "F8",
+        "kind": "ca_loc",
+        "pos": [
+          93.09553956613102,
+          10.284202354807801
+        ],
+        "heading_deg": 337.8435195877273,
+        "age_ticks": 379
+      },
+      {
+        "id": "F9",
+        "kind": "ca_loc",
+        "pos": [
+          89.59981463817321,
+          16.25588410693027
+        ],
+        "heading_deg": 147.40458393982934,
+        "age_ticks": 19
+      }
+    ],
+    "monsters": [
+      {
+        "id": "M1",
+        "kind": "ca_sau",
+        "pos": [
+          61.767,
+          24.0
+        ],
+        "waypoints": [
+          [
+            60.0,
+            24.0
+          ],
+          [
+            64.0,
+            24.0
+          ]
+        ],
+        "target_idx": 0,
+        "state": "patrol",
+        "state_ticks_left": 0,
+        "recoil_dir": null
+      }
+    ]
+  },
+  "assets_drawn": [
+    "ca-linh.webp",
+    "ca-loc.webp",
+    "ca-sau.webp",
+    "ba-ut.webp"
+  ],
+  "page_errors": []
+}
