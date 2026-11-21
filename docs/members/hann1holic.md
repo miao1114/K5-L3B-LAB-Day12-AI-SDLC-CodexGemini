@@ -1,17 +1,21 @@
-# hann1holic — Lê Huy Anh
+# hann1holic — Phản tư cá nhân
 
-## Đóng góp đối chiếu từ Git và tài liệu nhóm
+**Lê Huy Anh**
 
-- Phase 1: khách, đơn hàng và giữ nguyên liệu: [5bcbbda](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/5bcbbda).
-- Phase 2: vòng ngày, Shop, pause và trạng thái xuyên ngày: [eb7debb](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/eb7debb).
-- Phase 3: kho cá thể, giữ/re-reserve nguyên liệu và tích hợp adapter:
-  [547d00c](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/547d00c),
-  [56238e6](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/56238e6).
-- Phối hợp: interface kho/đơn với Gather và Kitchen; xem `docs/ai-usage-log.md`,
-  `docs/contracts/` và test Day/restaurant stock.
+## Tôi đã làm
 
-## Phản tư cá nhân — cần thành viên xác nhận
+- **Phase 1.** Xử lý khách đến, đặt món, giữ nguyên liệu và hoàn trả khi khách hết kiên nhẫn. [Commit `5bcbbda`](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/5bcbbda204d7c9e26c8a761f341a42721cb25bdd)
+- **Phase 2.** Triển khai vòng ngày headless, thực đơn D1–D5, bàn giao kho, Shop và pause. [Commit `eb7debb`](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/eb7debba20eb828f637d9b85533d0b875d236b15)
+- **Phase 3.** Quản lý kho Quán theo ID, hao tươi và thử giữ lại nguyên liệu khi hàng ươn. Bản ghép qua 201 test. [Commit `547d00c`](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/547d00c6eddaa28eb4044da6d6d4fa91a515ab4f) · [Bằng chứng](../proof/phase-3/quan-stock.md)
 
-Chưa có lời tự thuật được cung cấp về review, lỗi AI tự phát hiện và bài học cá nhân.
-Các mục này cần hann1holic bổ sung; bản ghi đóng góp trên không thay lời phản tư
-hoặc chứng nhận review PR của thành viên.
+## Tôi đã review
+
+Tôi dùng Codex đối chiếu hợp đồng kho và đơn hàng khi ghép Quán với Bếp, gồm ca phục vụ đúng tick khách hết kiên nhẫn. [Commit tích hợp `1cbad3a`](https://github.com/miao1114/K5-L3B-LAB-Day12-AI-SDLC-CodexGemini/commit/1cbad3a5b914f21292271b6ad5dbd5f444ea9bd9)
+
+## AI sai ở đâu và tôi phát hiện thế nào
+
+Bản đầu của Codex ghi tồn khả dụng vào snapshot và cho khách rời trước tương tác. Đối chiếu PRD-0 mục D–F cho thấy snapshot cần ghi tồn vật lý và khách rời sau tương tác. [Nhật ký AI](../ai-usage-log.md)
+
+## Điều tôi học được
+
+Tôi cần kiểm thử thứ tự xử lý trong cùng một tick, như khi giao món đúng lúc khách hết kiên nhẫn.
