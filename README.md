@@ -18,8 +18,8 @@ python3 -m chonoi.live --mode day --days 5 --port 8783
 ```
 
 Mở http://127.0.0.1:8783/. Từ ZIP đã giải nén: vào thư mục game rồi chạy lệnh Python
-thứ ba. Bản ứng viên còn trên nhánh updatelevel; khi clone trước merge phải chọn
-đúng nhánh/commit ứng viên, không giả định main đã chứa Phase 4.
+thứ ba. Bản chốt được bàn giao lên main; các mục chưa kiểm chứng ghi tại
+`docs/notes/Final-Handoff.md`. Push source không tự tạo tag hoặc GitHub Release.
 
 WASD/mũi tên di chuyển, Space bắt cá dưới nước, E hái/cập bến hoặc nấu/lấy/phục vụ.
 Trong Shop chọn nâng cấp hoặc rời để sang ngày; P/Esc tạm dừng. Nút “Tương phản cao”
