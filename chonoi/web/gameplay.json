@@ -1,5 +1,6 @@
 {
   "customer_interval_s": 5,
+  "extensions": ["current", "reservations"],
   "menu_unlocks": [
     {"day": 1, "dishes": ["goi_bong_sung", "ca_loc_nuong_trui"]},
     {"day": 2, "dishes": ["ca_keo_nuong"]},

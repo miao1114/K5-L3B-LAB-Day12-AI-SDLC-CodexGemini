@@ -10,6 +10,7 @@ import math
 
 from .day_config import gather_tuning
 from .errors import BadInput
+from .extensions import enabled
 from .inventory import KINDS_P2, validate_inventory_items, validate_items
 from .sim.monsters import monster_config
 
@@ -90,7 +91,11 @@ def _validate_day(initial, tuning):
 def _validate_block(block, mode, tuning):
     if not isinstance(block, dict):
         raise BadInput(f"khối {mode} phải là object")
-    allowed = GATHER_KEYS if mode == "gather" else QUAN_KEYS
+    allowed = set(GATHER_KEYS if mode == "gather" else QUAN_KEYS)
+    if mode == "gather" and enabled(tuning, "current"):
+        allowed |= {"random_current", "current_direction"}
+    if mode == "quan" and enabled(tuning, "reservations"):
+        allowed |= {"reservations", "random_reservations"}
     extra = set(block) - allowed
     if extra:
         raise BadInput(f"trường lạ/chưa hỗ trợ trong {mode}: {sorted(extra)}")
@@ -132,6 +137,10 @@ def _validate_gather(b, tuning):
             _check_ids(arr, b[arr])
     if "random_fish" in b and not isinstance(b["random_fish"], bool):
         raise BadInput("random_fish phải là boolean")
+    if "random_current" in b and b["random_current"] is not False:
+        raise BadInput("random_current chỉ nhận false")
+    if "current_direction" in b and (type(b["current_direction"]) is not int or b["current_direction"] not in (-1, 1)):
+        raise BadInput("current_direction phải là -1 hoặc 1")
     if "hold" in b:
         h = b["hold"]
         if isinstance(h, list) and (not h or isinstance(h[0], dict)):
@@ -243,3 +252,27 @@ def _validate_quan(b, tuning):
             raise BadInput(f"customers.{c['id']}: table_id phải là bàn có thật")
     if len(table_ids) != len(set(table_ids)):
         raise BadInput("hai khách cùng bàn")
+    if "random_reservations" in b and b["random_reservations"] is not False:
+        raise BadInput("random_reservations chỉ nhận false")
+    if "reservations" in b:
+        _validate_reservations(b["reservations"], tuning, known)
+
+
+def _validate_reservations(arr, tuning, tables):
+    _check_ids("reservations", arr)
+    cfg = tuning["reservations"]
+    dur = int(round(tuning["quan"]["duration_s"] * 60))
+    if len(arr) > cfg["count"]:
+        raise BadInput(f"reservations tối đa {cfg['count']} đơn")
+    seen_tables = set()
+    for r in arr:
+        if set(r) != {"id", "table_id", "dish_id", "arrival_tick"}:
+            raise BadInput(f"reservations.{r['id']}: cần đúng id, table_id, dish_id, arrival_tick")
+        if r["table_id"] not in tables or r["table_id"] in seen_tables:
+            raise BadInput(f"reservations.{r['id']}: bàn không có thật hoặc trùng bàn")
+        seen_tables.add(r["table_id"])
+        if r["dish_id"] not in tuning["menu"]:
+            raise BadInput(f"reservations.{r['id']}: món không có trong thực đơn")
+        t = r["arrival_tick"]
+        if isinstance(t, bool) or not isinstance(t, int) or not 1 <= t < dur:
+            raise BadInput(f"reservations.{r['id']}: arrival_tick phải nguyên trong [1, {dur - 1}]")

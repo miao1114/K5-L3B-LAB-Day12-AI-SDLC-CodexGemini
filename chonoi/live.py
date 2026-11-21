@@ -1,6 +1,6 @@
 """Cửa sổ chơi trực tiếp bằng TRÌNH DUYỆT, chỉ dùng thư viện chuẩn Python.
 
-    python3 -m chonoi.live --mode gather|quan [--seed N] [--port 8000]
+    python3 -m chonoi.live --mode gather|quan|day [--seed N] [--port 8000] [--days N] [--extensions current,reservations]
 
 Máy chủ HTTP nhỏ (ThreadingHTTPServer) phục vụ `chonoi/web/index.html` và hai API:
     GET  /state  -> snapshot JSON hiện tại (cùng trường như dòng snapshot của headless) + `meta` + `events`
@@ -23,9 +23,11 @@ import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from .contract import load_contract
+from .extensions import validate_extensions
 from .errors import BadInput
 from .inputs import LiveInputs
 from .inventory import read_inventory
+from .live_day import LiveDayGame
 from .runner import Session
 from .scenario import load_scenario
 
@@ -61,7 +63,7 @@ class LiveGame:
     def _reset(self):
         self.session = Session(*self._args)
         self.inputs = LiveInputs()
-        self.events = []
+        self.events = self.session.start_events()
         self._saved = False
         self.error = None
 
@@ -190,6 +192,13 @@ class _Handler(BaseHTTPRequestHandler):
                 self.game.set_input(body)
             elif path == "/restart":
                 self.game.restart()
+            elif path == "/action" and hasattr(self.game, "action"):  # vòng ngày: chuyển màn, Shop, pause
+                body = json.loads(raw.decode("utf-8") or "{}")
+                if not isinstance(body, dict):
+                    raise ValueError("body phải là object")
+                if not self.game.action(body):
+                    self._send(409, b'{"ok":false}')
+                    return
             else:
                 self._send(404, b'{"error":"khong co"}')
                 return
@@ -230,7 +239,10 @@ class LiveServer:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="chonoi.live", description="Chơi trực tiếp trên trình duyệt (starter).")
-    p.add_argument("--mode", required=True, choices=["gather", "quan"])
+    p.add_argument("--mode", required=True, choices=["gather", "quan", "day"])
+    p.add_argument("--days", type=int, default=1, help="chỉ với day: số Ngày 1–5")
+    p.add_argument("--extensions", default="current,reservations",
+                   help="extension khi chơi trên web (mặc định bật cả hai; '' = tắt hết). Headless không bị ảnh hưởng")
     p.add_argument("--seed", type=int, default=1)
     p.add_argument("--port", type=int, default=8000, help="0 = cổng ngẫu nhiên")
     p.add_argument("--host", default="127.0.0.1")
@@ -243,12 +255,21 @@ def main(argv=None) -> int:
             raise BadInput("--inventory chỉ dùng với quan")
         if a.inventory_out and a.mode != "gather":
             raise BadInput("--inventory-out chỉ dùng với gather")
-        tuning = load_contract()["tuning"]
+        if a.mode == "day" and not 1 <= a.days <= 5:
+            raise BadInput("--days phải từ 1 đến 5")
+        contract = load_contract()
+        # Chơi trên web bật extension mặc định; headless vẫn theo manifest (tắt) nên lõi không đổi.
+        contract["extensions"] = [e for e in a.extensions.split(",") if e]
+        validate_extensions(contract)
+        tuning = contract["tuning"]
         scenario = load_scenario(a.scenario, a.mode, tuning)
         inventory = read_inventory(a.inventory) if a.inventory else None
         if inventory is not None and "stock" in scenario:
             raise BadInput("vừa có quan.stock vừa có --inventory")
-        game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out)
+        if a.mode == "day":
+            game = LiveDayGame(tuning, scenario, a.seed, a.days)
+        else:
+            game = LiveGame(a.mode, tuning, scenario, a.seed, inventory, a.inventory_out)
         server = LiveServer(game, a.host, a.port)
     except BadInput as e:
         sys.stderr.write(f"đầu vào sai: {e}\n")

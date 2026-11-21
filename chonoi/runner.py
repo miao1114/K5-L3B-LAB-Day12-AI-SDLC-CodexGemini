@@ -73,7 +73,9 @@ class Session:
         return rows
 
     def start_events(self):
-        return self._event_rows(self.sim.start_events()) if self.mode == "day" else []
+        # day: day_start/day_plan/phase_start; quan có extension đặt trước: reservation_announced
+        starter = getattr(self.sim, "start_events", None)
+        return self._event_rows(starter()) if starter else []
 
     def step(self, inp) -> list:
         """Read pause before gameplay and stamp events before each phase change."""

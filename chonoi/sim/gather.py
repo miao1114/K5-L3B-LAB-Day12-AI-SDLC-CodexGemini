@@ -22,6 +22,7 @@ Các tính năng của phase sau chưa nằm trong khung này.
 
 import math
 
+from ..extensions import enabled
 from ..ids import id_key, sort_by_id
 from ..inventory import clone_items, materialize_items
 from .monsters import init_monsters, monster_snapshot, step_monsters, upgrade_limit
@@ -85,6 +86,12 @@ class GatherSim:
         for coll in (self.nodes, self.fish, self.monsters):
             for e in coll:
                 ids.reserve(e["id"])
+        # extension dòng nước lũ (TICKET-03 "current"): chỉ chạy khi manifest bật
+        self.phase_tick = 0
+        self.current_cfg = t.get("current") if enabled(tuning, "current") else None
+        self.random_current = scenario.get("random_current", True)
+        self.current_direction = scenario.get("current_direction")
+        self.current = None  # {"direction": ±1, "end_tick": phase tick kết thúc}
         self.money = 0
         self.earned = 0
         self.reputation = tuning["quan"]["reputation_initial"]
@@ -96,6 +103,13 @@ class GatherSim:
         return clone_items(self.hold_items)
 
     def snapshot(self) -> dict:
+        snap = self._core_snapshot()
+        if self.current_cfg is not None:
+            snap["current"] = None if self.current is None else {
+                "direction": self.current["direction"], "ticks_left": self.current["end_tick"] - self.phase_tick}
+        return snap
+
+    def _core_snapshot(self) -> dict:
         return {
             "player": {"pos": self.pos, "vel": self.vel, "heading_deg": self.heading,
                        "oxygen_ticks": self.oxygen_ticks, "oxygen_max_ticks": self.oxygen_max,
@@ -113,7 +127,34 @@ class GatherSim:
 
     # --- một bước ---------------------------------------------------------------
     def step(self, inp):
+        events = self._step(inp)
+        if self.done and self.current is not None:
+            # ca kết thúc giữa dòng lũ: current_end(phase_end) trước faint (nếu có) và gather_end
+            at = next(i for i, (name, _) in enumerate(events) if name in ("faint", "gather_end"))
+            events.insert(at, ("current_end", {"direction": self.current["direction"], "reason": "phase_end"}))
+            self.current = None
+        return events
+
+    def _step_current_schedule(self, events):
+        cfg = self.current_cfg
+        if cfg is None or not self.random_current:
+            return
+        tick, interval = self.phase_tick, cfg["interval_ticks"]
+        if self.current is not None and tick == self.current["end_tick"]:
+            events.append(("current_end", {"direction": self.current["direction"], "reason": "elapsed"}))
+            self.current = None
+        if tick % interval == 0:
+            direction = self.current_direction
+            if direction is None:
+                direction = self.rng.get("current").choice((-1, 1))
+            self.current = {"direction": direction, "end_tick": tick + cfg["duration_ticks"]}
+            events.append(("current_start", {"direction": direction, "duration_ticks": cfg["duration_ticks"]}))
+        if (tick + cfg["warning_ticks"]) % interval == 0:
+            events.append(("current_warning", {"starts_at_phase_tick": tick + cfg["warning_ticks"]}))
+
+    def _step(self, inp):
         events = []
+        self.phase_tick += 1
         # 1. đồng hồ và hàng có sẵn: giảm bộ đếm, nút mọc lại
         self.time_left_ticks = max(0, self.time_left_ticks - 1)
         self.invuln_ticks = max(0, self.invuln_ticks - 1)
@@ -132,6 +173,8 @@ class GatherSim:
                 crossed.append(item)
         for item in sorted(crossed, key=lambda i: id_key(i["id"])):
             events.append(("spoiled", {"item_id": item["id"], "kind": item["kind"], "location": "hold"}))
+        # 1c. lịch dòng nước lũ (extension), trước di chuyển
+        self._step_current_schedule(events)
         # 2. bơi + chặn mép + sinh tồn
         was_at_surface = self._at_surface()
         self._move(inp)
@@ -275,8 +318,11 @@ class GatherSim:
         if (mx, md) != (0.0, 0.0):
             self.heading = math.degrees(math.atan2(md, mx)) % 360
         b = self.t["bounds"]
+        drift = 0.0  # lực dòng lũ: cộng thẳng vào vị trí, không tích lũy vào vel
+        if self.current is not None and self.pos[1] >= self.current_cfg["min_depth"]:
+            drift = self.current["direction"] * self.current_cfg["speed"] / TICK
         for i, axis in enumerate(AXES):
-            self.pos[i] += self.vel[i] / TICK
+            self.pos[i] += self.vel[i] / TICK + (drift if i == 0 else 0.0)
             lo, hi = b[axis]
             if self.pos[i] <= lo:
                 self.pos[i] = lo
