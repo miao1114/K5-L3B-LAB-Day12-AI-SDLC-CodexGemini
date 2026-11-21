@@ -1,0 +1,146 @@
+{
+  "days": [
+    {
+      "day": 1,
+      "menu": [
+        {
+          "dish_id": "ca_loc_nuong_trui"
+        },
+        {
+          "dish_id": "goi_bong_sung"
+        }
+      ],
+      "fish_count": 8,
+      "plant_count": 6,
+      "fish_kinds": [
+        "ca_loc"
+      ],
+      "plant_kinds": [
+        "bong_sung"
+      ],
+      "monster_count": 1
+    },
+    {
+      "day": 2,
+      "menu": [
+        {
+          "dish_id": "ca_keo_nuong"
+        },
+        {
+          "dish_id": "ca_loc_nuong_trui"
+        },
+        {
+          "dish_id": "goi_bong_sung"
+        }
+      ],
+      "fish_count": 8,
+      "plant_count": 6,
+      "fish_kinds": [
+        "ca_keo",
+        "ca_loc"
+      ],
+      "plant_kinds": [
+        "bong_sung"
+      ],
+      "monster_count": 1
+    },
+    {
+      "day": 3,
+      "menu": [
+        {
+          "dish_id": "ca_keo_nuong"
+        },
+        {
+          "dish_id": "ca_loc_nuong_trui"
+        },
+        {
+          "dish_id": "canh_chua_ca_loc"
+        },
+        {
+          "dish_id": "goi_bong_sung"
+        }
+      ],
+      "fish_count": 8,
+      "plant_count": 6,
+      "fish_kinds": [
+        "ca_keo",
+        "ca_loc"
+      ],
+      "plant_kinds": [
+        "bong_dien_dien",
+        "bong_sung"
+      ],
+      "monster_count": 2
+    },
+    {
+      "day": 4,
+      "menu": [
+        {
+          "dish_id": "ca_keo_nuong"
+        },
+        {
+          "dish_id": "ca_loc_nuong_trui"
+        },
+        {
+          "dish_id": "canh_chua_ca_loc"
+        },
+        {
+          "dish_id": "goi_bong_sung"
+        },
+        {
+          "dish_id": "lau_ca_linh_dien_dien"
+        }
+      ],
+      "fish_count": 8,
+      "plant_count": 6,
+      "fish_kinds": [
+        "ca_keo",
+        "ca_linh",
+        "ca_loc"
+      ],
+      "plant_kinds": [
+        "bong_dien_dien",
+        "bong_sung"
+      ],
+      "monster_count": 2
+    },
+    {
+      "day": 5,
+      "menu": [
+        {
+          "dish_id": "ca_keo_nuong"
+        },
+        {
+          "dish_id": "ca_loc_nuong_trui"
+        },
+        {
+          "dish_id": "canh_chua_ca_loc"
+        },
+        {
+          "dish_id": "goi_bong_sung"
+        },
+        {
+          "dish_id": "lau_ca_linh_dien_dien"
+        },
+        {
+          "dish_id": "lau_mam"
+        }
+      ],
+      "fish_count": 8,
+      "plant_count": 6,
+      "fish_kinds": [
+        "ca_keo",
+        "ca_linh",
+        "ca_loc"
+      ],
+      "plant_kinds": [
+        "bong_dien_dien",
+        "bong_sung",
+        "keo_neo"
+      ],
+      "monster_count": 2
+    }
+  ],
+  "console_errors": [],
+  "fixtures": "Controlled backend clock; public HTTP dock/action, real DaySim/Shop transitions; no fake spawns or injected inventory."
+}

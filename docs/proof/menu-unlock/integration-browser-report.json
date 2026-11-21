@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "Day 4 Space catches two real schools: 6 items/2 slots; true counts in DayResult; real Shop purchase and Day 5 PASS",
+    "Mandatory Day 1 one-flower stock closes once, preserves leftover, no fake payment PASS",
+    "Five-day backend input replay with real HTTP intro/result/Shop actions, matching statistics and clean Chrome console PASS"
+  ],
+  "console_errors": [],
+  "viewport": "1280x720",
+  "fixtures": "Named fish/position and one-flower fixtures for UI edges; full five-day replay uses default spawns and saved real movement inputs."
+}

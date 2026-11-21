@@ -1,0 +1,269 @@
+{"type": "event", "tick": 0, "phase": "gather", "name": "day_start", "data": {}, "day": 1}
+{"type": "event", "tick": 0, "phase": "gather", "name": "day_plan", "data": {"dishes": {"ca_loc_nuong_trui": 1, "goi_bong_sung": 1}, "ingredients": {"bong_sung": 2, "ca_loc": 1}}, "day": 1}
+{"type": "event", "tick": 0, "phase": "gather", "name": "phase_start", "data": {}, "day": 1}
+{"type": "event", "tick": 124, "phase": "gather", "name": "gather", "data": {"node_id": "N1", "kind": "bong_sung", "amount": 1}, "day": 1}
+{"type": "event", "tick": 137, "phase": "gather", "name": "dive", "data": {"pos": [10.634076276242093, 0.5146195253142373]}, "day": 1}
+{"type": "event", "tick": 312, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F2", "kind": "ca_loc", "yield": 1}, "day": 1}
+{"type": "event", "tick": 360, "phase": "gather", "name": "fish_spawned", "data": {"id": "F9", "kind": "ca_loc", "pos": [45, 16]}, "day": 1}
+{"type": "event", "tick": 486, "phase": "gather", "name": "surface", "data": {"pos": [13.820092544201984, 0.48039599836703273]}, "day": 1}
+{"type": "event", "tick": 703, "phase": "gather", "name": "gather", "data": {"node_id": "N2", "kind": "bong_sung", "amount": 1}, "day": 1}
+{"type": "event", "tick": 720, "phase": "gather", "name": "fish_spawned", "data": {"id": "F10", "kind": "ca_loc", "pos": [30, 16]}, "day": 1}
+{"type": "event", "tick": 1031, "phase": "gather", "name": "gather_end", "data": {"reason": "docked", "inventory": {"items": [{"id": "I1", "kind": "bong_sung", "fresh": 92.44166666666065}, {"id": "I2", "kind": "ca_loc", "fresh": 94.00833333332857}, {"id": "I3", "kind": "bong_sung", "fresh": 97.26666666666449}]}}, "day": 1}
+{"type": "event", "tick": 1031, "phase": "quan", "name": "phase_start", "data": {}, "day": 1}
+{"type": "event", "tick": 1151, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C1", "table_id": "T1", "dish_id": "ca_loc_nuong_trui"}, "day": 1}
+{"type": "event", "tick": 1198, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C1", "dish_id": "ca_loc_nuong_trui", "base_price": 55, "items": [{"id": "I2", "kind": "ca_loc", "fresh": 93.31249999999524}]}, "day": 1}
+{"type": "event", "tick": 1451, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C2", "table_id": "T2", "dish_id": "goi_bong_sung"}, "day": 1}
+{"type": "event", "tick": 1494, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B1", "order_id": "C2", "dish_id": "goi_bong_sung", "base_price": 37, "items": [{"id": "I1", "kind": "bong_sung", "fresh": 90.51249999999398}, {"id": "I3", "kind": "bong_sung", "fresh": 95.33749999999782}]}, "day": 1}
+{"type": "event", "tick": 1558, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C1", "dish_id": "ca_loc_nuong_trui"}, "day": 1}
+{"type": "event", "tick": 1568, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C1", "dish_id": "ca_loc_nuong_trui"}, "day": 1}
+{"type": "event", "tick": 1668, "phase": "quan", "name": "served", "data": {"order_id": "C1", "dish_id": "ca_loc_nuong_trui", "base_price": 55, "table_id": "T1", "patience_ticks_left": 3083, "tip": 11}, "day": 1}
+{"type": "event", "tick": 1734, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B1", "order_id": "C2", "dish_id": "goi_bong_sung"}, "day": 1}
+{"type": "event", "tick": 1751, "phase": "quan", "name": "no_dish", "data": {}, "day": 1}
+{"type": "event", "tick": 1837, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B1", "order_id": "C2", "dish_id": "goi_bong_sung"}, "day": 1}
+{"type": "event", "tick": 1993, "phase": "quan", "name": "served", "data": {"order_id": "C2", "dish_id": "goi_bong_sung", "base_price": 37, "table_id": "T2", "patience_ticks_left": 3058, "tip": 7}, "day": 1}
+{"type": "event", "tick": 2051, "phase": "quan", "name": "no_dish", "data": {}, "day": 1}
+{"type": "event", "tick": 2268, "phase": "quan", "name": "paid", "data": {"order_id": "C1", "table_id": "T1", "base_price": 55, "tip": 11, "amount": 66, "reason": "finished_eating"}, "day": 1}
+{"type": "event", "tick": 2351, "phase": "quan", "name": "no_dish", "data": {}, "day": 1}
+{"type": "event", "tick": 2593, "phase": "quan", "name": "paid", "data": {"order_id": "C2", "table_id": "T2", "base_price": 37, "tip": 7, "amount": 44, "reason": "finished_eating"}, "day": 1}
+{"type": "event", "tick": 2593, "phase": "quan", "name": "quan_end", "data": {"reason": "inventory_exhausted", "money": 110, "earned": 110, "shift_earned": 110, "reputation": 3.4}, "day": 1}
+{"type": "event", "tick": 2593, "phase": "shop", "name": "phase_start", "data": {}, "day": 1}
+{"type": "event", "tick": 2594, "phase": "shop", "name": "shop_end", "data": {"reason": "done"}, "day": 1}
+{"type": "event", "tick": 2594, "phase": "gather", "name": "day_start", "data": {}, "day": 2}
+{"type": "event", "tick": 2594, "phase": "gather", "name": "day_plan", "data": {"dishes": {"ca_keo_nuong": 1, "ca_loc_nuong_trui": 1, "goi_bong_sung": 1}, "ingredients": {"bong_sung": 2, "ca_keo": 2, "ca_loc": 1}}, "day": 2}
+{"type": "event", "tick": 2594, "phase": "gather", "name": "phase_start", "data": {}, "day": 2}
+{"type": "event", "tick": 2718, "phase": "gather", "name": "gather", "data": {"node_id": "N1", "kind": "bong_sung", "amount": 1}, "day": 2}
+{"type": "event", "tick": 2954, "phase": "gather", "name": "fish_spawned", "data": {"id": "F19", "kind": "ca_keo", "pos": [75, 27]}, "day": 2}
+{"type": "event", "tick": 2958, "phase": "gather", "name": "gather", "data": {"node_id": "N2", "kind": "bong_sung", "amount": 1}, "day": 2}
+{"type": "event", "tick": 2971, "phase": "gather", "name": "dive", "data": {"pos": [26.54199212122167, 0.5468927648007047]}, "day": 2}
+{"type": "event", "tick": 3111, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F14", "kind": "ca_loc", "yield": 1}, "day": 2}
+{"type": "event", "tick": 3303, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F11", "kind": "ca_keo", "yield": 2}, "day": 2}
+{"type": "event", "tick": 3314, "phase": "gather", "name": "fish_spawned", "data": {"id": "F20", "kind": "ca_loc", "pos": [45, 10]}, "day": 2}
+{"type": "event", "tick": 3625, "phase": "gather", "name": "surface", "data": {"pos": [26.801697912405295, 0.4943418398543372]}, "day": 2}
+{"type": "event", "tick": 3674, "phase": "gather", "name": "fish_spawned", "data": {"id": "F21", "kind": "ca_loc", "pos": [30, 10]}, "day": 2}
+{"type": "event", "tick": 3918, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N1"}, "day": 2}
+{"type": "event", "tick": 3959, "phase": "gather", "name": "gather_end", "data": {"reason": "docked", "inventory": {"items": [{"id": "I4", "kind": "bong_sung", "fresh": 89.6583333333251}, {"id": "I5", "kind": "bong_sung", "fresh": 91.6583333333267}, {"id": "I6", "kind": "ca_loc", "fresh": 92.93333333332771}, {"id": "I7", "kind": "ca_keo", "fresh": 94.53333333332898}, {"id": "I8", "kind": "ca_keo", "fresh": 94.53333333332898}]}}, "day": 2}
+{"type": "event", "tick": 3959, "phase": "quan", "name": "phase_start", "data": {}, "day": 2}
+{"type": "event", "tick": 4079, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C3", "table_id": "T1", "dish_id": "goi_bong_sung"}, "day": 2}
+{"type": "event", "tick": 4126, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C3", "dish_id": "goi_bong_sung", "base_price": 35, "items": [{"id": "I4", "kind": "bong_sung", "fresh": 88.96249999999176}, {"id": "I5", "kind": "bong_sung", "fresh": 90.96249999999337}]}, "day": 2}
+{"type": "event", "tick": 4366, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C3", "dish_id": "goi_bong_sung"}, "day": 2}
+{"type": "event", "tick": 4367, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C3", "dish_id": "goi_bong_sung"}, "day": 2}
+{"type": "event", "tick": 4379, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C4", "table_id": "T2", "dish_id": "ca_loc_nuong_trui"}, "day": 2}
+{"type": "event", "tick": 4442, "phase": "quan", "name": "served", "data": {"order_id": "C3", "dish_id": "goi_bong_sung", "base_price": 35, "table_id": "T1", "patience_ticks_left": 3237, "tip": 7}, "day": 2}
+{"type": "event", "tick": 4518, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C4", "dish_id": "ca_loc_nuong_trui", "base_price": 54, "items": [{"id": "I6", "kind": "ca_loc", "fresh": 90.60416666666104}]}, "day": 2}
+{"type": "event", "tick": 4679, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C5", "table_id": "T3", "dish_id": "ca_keo_nuong"}, "day": 2}
+{"type": "event", "tick": 4720, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B1", "order_id": "C5", "dish_id": "ca_keo_nuong", "base_price": 63, "items": [{"id": "I7", "kind": "ca_keo", "fresh": 91.36249999999565}, {"id": "I8", "kind": "ca_keo", "fresh": 91.36249999999565}]}, "day": 2}
+{"type": "event", "tick": 4878, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C4", "dish_id": "ca_loc_nuong_trui"}, "day": 2}
+{"type": "event", "tick": 4888, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C4", "dish_id": "ca_loc_nuong_trui"}, "day": 2}
+{"type": "event", "tick": 4979, "phase": "quan", "name": "no_dish", "data": {}, "day": 2}
+{"type": "event", "tick": 5034, "phase": "quan", "name": "served", "data": {"order_id": "C4", "dish_id": "ca_loc_nuong_trui", "base_price": 54, "table_id": "T2", "patience_ticks_left": 2945, "tip": 10}, "day": 2}
+{"type": "event", "tick": 5042, "phase": "quan", "name": "paid", "data": {"order_id": "C3", "table_id": "T1", "base_price": 35, "tip": 7, "amount": 42, "reason": "finished_eating"}, "day": 2}
+{"type": "event", "tick": 5080, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B1", "order_id": "C5", "dish_id": "ca_keo_nuong"}, "day": 2}
+{"type": "event", "tick": 5233, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B1", "order_id": "C5", "dish_id": "ca_keo_nuong"}, "day": 2}
+{"type": "event", "tick": 5279, "phase": "quan", "name": "no_dish", "data": {}, "day": 2}
+{"type": "event", "tick": 5311, "phase": "quan", "name": "served", "data": {"order_id": "C5", "dish_id": "ca_keo_nuong", "base_price": 63, "table_id": "T3", "patience_ticks_left": 2968, "tip": 12}, "day": 2}
+{"type": "event", "tick": 5579, "phase": "quan", "name": "no_dish", "data": {}, "day": 2}
+{"type": "event", "tick": 5634, "phase": "quan", "name": "paid", "data": {"order_id": "C4", "table_id": "T2", "base_price": 54, "tip": 10, "amount": 64, "reason": "finished_eating"}, "day": 2}
+{"type": "event", "tick": 5879, "phase": "quan", "name": "no_dish", "data": {}, "day": 2}
+{"type": "event", "tick": 5911, "phase": "quan", "name": "paid", "data": {"order_id": "C5", "table_id": "T3", "base_price": 63, "tip": 12, "amount": 75, "reason": "finished_eating"}, "day": 2}
+{"type": "event", "tick": 5911, "phase": "quan", "name": "quan_end", "data": {"reason": "inventory_exhausted", "money": 291, "earned": 291, "shift_earned": 181, "reputation": 4.0}, "day": 2}
+{"type": "event", "tick": 5911, "phase": "shop", "name": "phase_start", "data": {}, "day": 2}
+{"type": "event", "tick": 5912, "phase": "shop", "name": "bought", "data": {"upgrade": "hp", "level": 1, "price": 250, "money": 41}, "day": 2}
+{"type": "event", "tick": 5913, "phase": "shop", "name": "shop_end", "data": {"reason": "done"}, "day": 2}
+{"type": "event", "tick": 5913, "phase": "gather", "name": "day_start", "data": {}, "day": 3}
+{"type": "event", "tick": 5913, "phase": "gather", "name": "day_plan", "data": {"dishes": {"ca_keo_nuong": 1, "ca_loc_nuong_trui": 1, "canh_chua_ca_loc": 1, "goi_bong_sung": 1}, "ingredients": {"bong_dien_dien": 1, "bong_sung": 2, "ca_keo": 2, "ca_loc": 2}}, "day": 3}
+{"type": "event", "tick": 5913, "phase": "gather", "name": "phase_start", "data": {}, "day": 3}
+{"type": "event", "tick": 6037, "phase": "gather", "name": "gather", "data": {"node_id": "N1", "kind": "bong_dien_dien", "amount": 1}, "day": 3}
+{"type": "event", "tick": 6273, "phase": "gather", "name": "fish_spawned", "data": {"id": "F30", "kind": "ca_keo", "pos": [60, 27]}, "day": 3}
+{"type": "event", "tick": 6277, "phase": "gather", "name": "gather", "data": {"node_id": "N2", "kind": "bong_sung", "amount": 1}, "day": 3}
+{"type": "event", "tick": 6290, "phase": "gather", "name": "dive", "data": {"pos": [26.323639925711273, 0.5589960799671952]}, "day": 3}
+{"type": "event", "tick": 6409, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F22", "kind": "ca_loc", "yield": 1}, "day": 3}
+{"type": "event", "tick": 6464, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F26", "kind": "ca_loc", "yield": 1}, "day": 3}
+{"type": "event", "tick": 6633, "phase": "gather", "name": "fish_spawned", "data": {"id": "F31", "kind": "ca_keo", "pos": [90, 27]}, "day": 3}
+{"type": "event", "tick": 6651, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F23", "kind": "ca_keo", "yield": 2}, "day": 3}
+{"type": "event", "tick": 6993, "phase": "gather", "name": "fish_spawned", "data": {"id": "F32", "kind": "ca_loc", "pos": [90, 16]}, "day": 3}
+{"type": "event", "tick": 7008, "phase": "gather", "name": "surface", "data": {"pos": [22.713343250718413, 0.4672371624310919]}, "day": 3}
+{"type": "event", "tick": 7237, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N1"}, "day": 3}
+{"type": "event", "tick": 7353, "phase": "gather", "name": "fish_spawned", "data": {"id": "F33", "kind": "ca_keo", "pos": [45, 24]}, "day": 3}
+{"type": "event", "tick": 7477, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N2"}, "day": 3}
+{"type": "event", "tick": 7633, "phase": "gather", "name": "gather", "data": {"node_id": "N4", "kind": "bong_sung", "amount": 1}, "day": 3}
+{"type": "event", "tick": 7713, "phase": "gather", "name": "fish_spawned", "data": {"id": "F34", "kind": "ca_loc", "pos": [45, 16]}, "day": 3}
+{"type": "event", "tick": 8073, "phase": "gather", "name": "fish_spawned", "data": {"id": "F35", "kind": "ca_keo", "pos": [90, 27]}, "day": 3}
+{"type": "event", "tick": 8433, "phase": "gather", "name": "fish_spawned", "data": {"id": "F36", "kind": "ca_loc", "pos": [15, 10]}, "day": 3}
+{"type": "event", "tick": 8441, "phase": "gather", "name": "gather_end", "data": {"reason": "docked", "inventory": {"items": [{"id": "I9", "kind": "bong_dien_dien", "fresh": 79.96666666665072}, {"id": "I10", "kind": "bong_sung", "fresh": 81.96666666665232}, {"id": "I11", "kind": "ca_loc", "fresh": 83.06666666665319}, {"id": "I12", "kind": "ca_loc", "fresh": 83.52499999998689}, {"id": "I13", "kind": "ca_keo", "fresh": 85.08333333332146}, {"id": "I14", "kind": "ca_keo", "fresh": 85.08333333332146}, {"id": "I15", "kind": "bong_sung", "fresh": 93.26666666666131}]}}, "day": 3}
+{"type": "event", "tick": 8441, "phase": "quan", "name": "phase_start", "data": {}, "day": 3}
+{"type": "event", "tick": 8561, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C6", "table_id": "T1", "dish_id": "goi_bong_sung"}, "day": 3}
+{"type": "event", "tick": 8608, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C6", "dish_id": "goi_bong_sung", "base_price": 34, "items": [{"id": "I10", "kind": "bong_sung", "fresh": 81.27083333331899}, {"id": "I15", "kind": "bong_sung", "fresh": 92.57083333332798}]}, "day": 3}
+{"type": "event", "tick": 8848, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C6", "dish_id": "goi_bong_sung"}, "day": 3}
+{"type": "event", "tick": 8849, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C6", "dish_id": "goi_bong_sung"}, "day": 3}
+{"type": "event", "tick": 8861, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C7", "table_id": "T2", "dish_id": "ca_loc_nuong_trui"}, "day": 3}
+{"type": "event", "tick": 8924, "phase": "quan", "name": "served", "data": {"order_id": "C6", "dish_id": "goi_bong_sung", "base_price": 34, "table_id": "T1", "patience_ticks_left": 3237, "tip": 6}, "day": 3}
+{"type": "event", "tick": 9000, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C7", "dish_id": "ca_loc_nuong_trui", "base_price": 48, "items": [{"id": "I12", "kind": "ca_loc", "fresh": 81.19583333332022}]}, "day": 3}
+{"type": "event", "tick": 9161, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C8", "table_id": "T3", "dish_id": "ca_keo_nuong"}, "day": 3}
+{"type": "event", "tick": 9202, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B1", "order_id": "C8", "dish_id": "ca_keo_nuong", "base_price": 57, "items": [{"id": "I13", "kind": "ca_keo", "fresh": 81.91249999998813}, {"id": "I14", "kind": "ca_keo", "fresh": 81.91249999998813}]}, "day": 3}
+{"type": "event", "tick": 9360, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C7", "dish_id": "ca_loc_nuong_trui"}, "day": 3}
+{"type": "event", "tick": 9370, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C7", "dish_id": "ca_loc_nuong_trui"}, "day": 3}
+{"type": "event", "tick": 9461, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C9", "table_id": "T4", "dish_id": "ca_loc_nuong_trui"}, "day": 3}
+{"type": "event", "tick": 9516, "phase": "quan", "name": "served", "data": {"order_id": "C7", "dish_id": "ca_loc_nuong_trui", "base_price": 48, "table_id": "T2", "patience_ticks_left": 2945, "tip": 9}, "day": 3}
+{"type": "event", "tick": 9524, "phase": "quan", "name": "paid", "data": {"order_id": "C6", "table_id": "T1", "base_price": 34, "tip": 6, "amount": 40, "reason": "finished_eating"}, "day": 3}
+{"type": "event", "tick": 9562, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B1", "order_id": "C8", "dish_id": "ca_keo_nuong"}, "day": 3}
+{"type": "event", "tick": 9672, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B1", "order_id": "C8", "dish_id": "ca_keo_nuong"}, "day": 3}
+{"type": "event", "tick": 9749, "phase": "quan", "name": "served", "data": {"order_id": "C8", "dish_id": "ca_keo_nuong", "base_price": 57, "table_id": "T3", "patience_ticks_left": 3012, "tip": 11}, "day": 3}
+{"type": "event", "tick": 9761, "phase": "quan", "name": "no_dish", "data": {}, "day": 3}
+{"type": "event", "tick": 9785, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C9", "dish_id": "ca_loc_nuong_trui", "base_price": 46, "items": [{"id": "I11", "kind": "ca_loc", "fresh": 77.4666666666532}]}, "day": 3}
+{"type": "event", "tick": 10061, "phase": "quan", "name": "no_dish", "data": {}, "day": 3}
+{"type": "event", "tick": 10116, "phase": "quan", "name": "paid", "data": {"order_id": "C7", "table_id": "T2", "base_price": 48, "tip": 9, "amount": 57, "reason": "finished_eating"}, "day": 3}
+{"type": "event", "tick": 10145, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C9", "dish_id": "ca_loc_nuong_trui"}, "day": 3}
+{"type": "event", "tick": 10146, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C9", "dish_id": "ca_loc_nuong_trui"}, "day": 3}
+{"type": "event", "tick": 10237, "phase": "quan", "name": "served", "data": {"order_id": "C9", "dish_id": "ca_loc_nuong_trui", "base_price": 46, "table_id": "T4", "patience_ticks_left": 2824, "tip": 9}, "day": 3}
+{"type": "event", "tick": 10349, "phase": "quan", "name": "paid", "data": {"order_id": "C8", "table_id": "T3", "base_price": 57, "tip": 11, "amount": 68, "reason": "finished_eating"}, "day": 3}
+{"type": "event", "tick": 10361, "phase": "quan", "name": "no_dish", "data": {}, "day": 3}
+{"type": "event", "tick": 10661, "phase": "quan", "name": "no_dish", "data": {}, "day": 3}
+{"type": "event", "tick": 10837, "phase": "quan", "name": "paid", "data": {"order_id": "C9", "table_id": "T4", "base_price": 46, "tip": 9, "amount": 55, "reason": "finished_eating"}, "day": 3}
+{"type": "event", "tick": 10837, "phase": "quan", "name": "quan_end", "data": {"reason": "inventory_exhausted", "money": 261, "earned": 511, "shift_earned": 220, "reputation": 4.8}, "day": 3}
+{"type": "event", "tick": 10837, "phase": "shop", "name": "phase_start", "data": {}, "day": 3}
+{"type": "event", "tick": 10838, "phase": "shop", "name": "bought", "data": {"upgrade": "oxygen", "level": 1, "price": 200, "money": 61}, "day": 3}
+{"type": "event", "tick": 10839, "phase": "shop", "name": "shop_end", "data": {"reason": "done"}, "day": 3}
+{"type": "event", "tick": 10839, "phase": "gather", "name": "day_start", "data": {}, "day": 4}
+{"type": "event", "tick": 10839, "phase": "gather", "name": "day_plan", "data": {"dishes": {"ca_keo_nuong": 1, "ca_loc_nuong_trui": 1, "canh_chua_ca_loc": 1, "goi_bong_sung": 1, "lau_ca_linh_dien_dien": 1}, "ingredients": {"bong_dien_dien": 2, "bong_sung": 2, "ca_keo": 2, "ca_linh": 3, "ca_loc": 2}}, "day": 4}
+{"type": "event", "tick": 10839, "phase": "gather", "name": "phase_start", "data": {}, "day": 4}
+{"type": "event", "tick": 10963, "phase": "gather", "name": "gather", "data": {"node_id": "N1", "kind": "bong_dien_dien", "amount": 1}, "day": 4}
+{"type": "event", "tick": 10977, "phase": "gather", "name": "dive", "data": {"pos": [10.766719539232888, 0.5124675750423188]}, "day": 4}
+{"type": "event", "tick": 11102, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F41", "kind": "ca_linh", "yield": 3}, "day": 4}
+{"type": "event", "tick": 11199, "phase": "gather", "name": "fish_spawned", "data": {"id": "F45", "kind": "ca_linh", "pos": [30, 10]}, "day": 4}
+{"type": "event", "tick": 11217, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F40", "kind": "ca_loc", "yield": 1}, "day": 4}
+{"type": "event", "tick": 11441, "phase": "gather", "name": "surface", "data": {"pos": [12.468005214196653, 0.47846086777178143]}, "day": 4}
+{"type": "event", "tick": 11559, "phase": "gather", "name": "fish_spawned", "data": {"id": "F46", "kind": "ca_keo", "pos": [45, 24]}, "day": 4}
+{"type": "event", "tick": 11682, "phase": "gather", "name": "gather", "data": {"node_id": "N2", "kind": "bong_sung", "amount": 1}, "day": 4}
+{"type": "event", "tick": 11919, "phase": "gather", "name": "fish_spawned", "data": {"id": "F47", "kind": "ca_loc", "pos": [15, 16]}, "day": 4}
+{"type": "event", "tick": 11922, "phase": "gather", "name": "gather", "data": {"node_id": "N3", "kind": "bong_dien_dien", "amount": 1}, "day": 4}
+{"type": "event", "tick": 12162, "phase": "gather", "name": "gather", "data": {"node_id": "N4", "kind": "bong_sung", "amount": 1}, "day": 4}
+{"type": "event", "tick": 12163, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N1"}, "day": 4}
+{"type": "event", "tick": 12184, "phase": "gather", "name": "dive", "data": {"pos": [59.47151980535182, 0.5124336137024016]}, "day": 4}
+{"type": "event", "tick": 12279, "phase": "gather", "name": "fish_spawned", "data": {"id": "F48", "kind": "ca_keo", "pos": [60, 27]}, "day": 4}
+{"type": "event", "tick": 12630, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F46", "kind": "ca_keo", "yield": 2}, "day": 4}
+{"type": "event", "tick": 12639, "phase": "gather", "name": "fish_spawned", "data": {"id": "F49", "kind": "ca_linh", "pos": [90, 5]}, "day": 4}
+{"type": "event", "tick": 12882, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N2"}, "day": 4}
+{"type": "event", "tick": 12962, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F47", "kind": "ca_loc", "yield": 1}, "day": 4}
+{"type": "event", "tick": 12999, "phase": "gather", "name": "fish_spawned", "data": {"id": "F50", "kind": "ca_keo", "pos": [45, 24]}, "day": 4}
+{"type": "event", "tick": 13122, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N3"}, "day": 4}
+{"type": "event", "tick": 13235, "phase": "gather", "name": "surface", "data": {"pos": [24.576330249856216, 0.49677650112672034]}, "day": 4}
+{"type": "event", "tick": 13359, "phase": "gather", "name": "fish_spawned", "data": {"id": "F51", "kind": "ca_loc", "pos": [15, 10]}, "day": 4}
+{"type": "event", "tick": 13362, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N4"}, "day": 4}
+{"type": "event", "tick": 13535, "phase": "gather", "name": "gather_end", "data": {"reason": "docked", "inventory": {"items": [{"id": "I16", "kind": "bong_dien_dien", "fresh": 78.56666666664961}, {"id": "I17", "kind": "ca_linh", "fresh": 79.72499999998386}, {"id": "I18", "kind": "ca_linh", "fresh": 79.72499999998386}, {"id": "I19", "kind": "ca_linh", "fresh": 79.72499999998386}, {"id": "I20", "kind": "ca_loc", "fresh": 80.68333333331796}, {"id": "I21", "kind": "bong_sung", "fresh": 84.55833333332104}, {"id": "I22", "kind": "bong_dien_dien", "fresh": 86.55833333332264}, {"id": "I23", "kind": "bong_sung", "fresh": 88.55833333332423}, {"id": "I24", "kind": "ca_keo", "fresh": 92.45833333332733}, {"id": "I25", "kind": "ca_keo", "fresh": 92.45833333332733}, {"id": "I26", "kind": "ca_loc", "fresh": 95.2249999999962}]}}, "day": 4}
+{"type": "event", "tick": 13535, "phase": "quan", "name": "phase_start", "data": {}, "day": 4}
+{"type": "event", "tick": 13655, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C10", "table_id": "T1", "dish_id": "lau_ca_linh_dien_dien"}, "day": 4}
+{"type": "event", "tick": 13702, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C10", "dish_id": "lau_ca_linh_dien_dien", "base_price": 96, "items": [{"id": "I22", "kind": "bong_dien_dien", "fresh": 85.86249999998931}, {"id": "I17", "kind": "ca_linh", "fresh": 79.02916666665053}, {"id": "I18", "kind": "ca_linh", "fresh": 79.02916666665053}, {"id": "I19", "kind": "ca_linh", "fresh": 79.02916666665053}]}, "day": 4}
+{"type": "event", "tick": 13955, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C11", "table_id": "T2", "dish_id": "goi_bong_sung"}, "day": 4}
+{"type": "event", "tick": 13998, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B1", "order_id": "C11", "dish_id": "goi_bong_sung", "base_price": 33, "items": [{"id": "I21", "kind": "bong_sung", "fresh": 82.62916666665437}, {"id": "I23", "kind": "bong_sung", "fresh": 86.62916666665757}]}, "day": 4}
+{"type": "event", "tick": 14238, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B1", "order_id": "C11", "dish_id": "goi_bong_sung"}, "day": 4}
+{"type": "event", "tick": 14239, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B1", "order_id": "C11", "dish_id": "goi_bong_sung"}, "day": 4}
+{"type": "event", "tick": 14255, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C12", "table_id": "T3", "dish_id": "ca_keo_nuong"}, "day": 4}
+{"type": "event", "tick": 14302, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C10", "dish_id": "lau_ca_linh_dien_dien"}, "day": 4}
+{"type": "event", "tick": 14394, "phase": "quan", "name": "served", "data": {"order_id": "C11", "dish_id": "goi_bong_sung", "base_price": 33, "table_id": "T2", "patience_ticks_left": 3161, "tip": 6}, "day": 4}
+{"type": "event", "tick": 14512, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C10", "dish_id": "lau_ca_linh_dien_dien"}, "day": 4}
+{"type": "event", "tick": 14555, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C13", "table_id": "T4", "dish_id": "canh_chua_ca_loc"}, "day": 4}
+{"type": "event", "tick": 14589, "phase": "quan", "name": "served", "data": {"order_id": "C10", "dish_id": "lau_ca_linh_dien_dien", "base_price": 96, "table_id": "T1", "patience_ticks_left": 2666, "tip": 19}, "day": 4}
+{"type": "event", "tick": 14665, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C12", "dish_id": "ca_keo_nuong", "base_price": 61, "items": [{"id": "I24", "kind": "ca_keo", "fresh": 87.749999999994}, {"id": "I25", "kind": "ca_keo", "fresh": 87.749999999994}]}, "day": 4}
+{"type": "event", "tick": 14705, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B1", "order_id": "C13", "dish_id": "canh_chua_ca_loc", "base_price": 73, "items": [{"id": "I16", "kind": "bong_dien_dien", "fresh": 73.69166666664961}, {"id": "I26", "kind": "ca_loc", "fresh": 90.3499999999962}]}, "day": 4}
+{"type": "event", "tick": 14994, "phase": "quan", "name": "paid", "data": {"order_id": "C11", "table_id": "T2", "base_price": 33, "tip": 6, "amount": 39, "reason": "finished_eating"}, "day": 4}
+{"type": "event", "tick": 15025, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C12", "dish_id": "ca_keo_nuong"}, "day": 4}
+{"type": "event", "tick": 15035, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C12", "dish_id": "ca_keo_nuong"}, "day": 4}
+{"type": "event", "tick": 15101, "phase": "quan", "name": "served", "data": {"order_id": "C12", "dish_id": "ca_keo_nuong", "base_price": 61, "table_id": "T3", "patience_ticks_left": 2754, "tip": 12}, "day": 4}
+{"type": "event", "tick": 15155, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C14", "table_id": "T2", "dish_id": "ca_loc_nuong_trui"}, "day": 4}
+{"type": "event", "tick": 15185, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B1", "order_id": "C13", "dish_id": "canh_chua_ca_loc"}, "day": 4}
+{"type": "event", "tick": 15189, "phase": "quan", "name": "paid", "data": {"order_id": "C10", "table_id": "T1", "base_price": 96, "tip": 19, "amount": 115, "reason": "finished_eating"}, "day": 4}
+{"type": "event", "tick": 15231, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B1", "order_id": "C13", "dish_id": "canh_chua_ca_loc"}, "day": 4}
+{"type": "event", "tick": 15367, "phase": "quan", "name": "served", "data": {"order_id": "C13", "dish_id": "canh_chua_ca_loc", "base_price": 73, "table_id": "T4", "patience_ticks_left": 2788, "tip": 14}, "day": 4}
+{"type": "event", "tick": 15455, "phase": "quan", "name": "no_dish", "data": {}, "day": 4}
+{"type": "event", "tick": 15459, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C14", "dish_id": "ca_loc_nuong_trui", "base_price": 43, "items": [{"id": "I20", "kind": "ca_loc", "fresh": 72.6666666666513}]}, "day": 4}
+{"type": "event", "tick": 15701, "phase": "quan", "name": "paid", "data": {"order_id": "C12", "table_id": "T3", "base_price": 61, "tip": 12, "amount": 73, "reason": "finished_eating"}, "day": 4}
+{"type": "event", "tick": 15755, "phase": "quan", "name": "no_dish", "data": {}, "day": 4}
+{"type": "event", "tick": 15819, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C14", "dish_id": "ca_loc_nuong_trui"}, "day": 4}
+{"type": "event", "tick": 15820, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C14", "dish_id": "ca_loc_nuong_trui"}, "day": 4}
+{"type": "event", "tick": 15938, "phase": "quan", "name": "served", "data": {"order_id": "C14", "dish_id": "ca_loc_nuong_trui", "base_price": 43, "table_id": "T2", "patience_ticks_left": 2817, "tip": 8}, "day": 4}
+{"type": "event", "tick": 15967, "phase": "quan", "name": "paid", "data": {"order_id": "C13", "table_id": "T4", "base_price": 73, "tip": 14, "amount": 87, "reason": "finished_eating"}, "day": 4}
+{"type": "event", "tick": 16055, "phase": "quan", "name": "no_dish", "data": {}, "day": 4}
+{"type": "event", "tick": 16355, "phase": "quan", "name": "no_dish", "data": {}, "day": 4}
+{"type": "event", "tick": 16538, "phase": "quan", "name": "paid", "data": {"order_id": "C14", "table_id": "T2", "base_price": 43, "tip": 8, "amount": 51, "reason": "finished_eating"}, "day": 4}
+{"type": "event", "tick": 16538, "phase": "quan", "name": "quan_end", "data": {"reason": "inventory_exhausted", "money": 426, "earned": 876, "shift_earned": 365, "reputation": 5.0}, "day": 4}
+{"type": "event", "tick": 16538, "phase": "shop", "name": "phase_start", "data": {}, "day": 4}
+{"type": "event", "tick": 16539, "phase": "shop", "name": "bought", "data": {"upgrade": "oxygen", "level": 2, "price": 400, "money": 26}, "day": 4}
+{"type": "event", "tick": 16540, "phase": "shop", "name": "shop_end", "data": {"reason": "done"}, "day": 4}
+{"type": "event", "tick": 16540, "phase": "gather", "name": "day_start", "data": {}, "day": 5}
+{"type": "event", "tick": 16540, "phase": "gather", "name": "day_plan", "data": {"dishes": {"ca_loc_nuong_trui": 3, "goi_bong_sung": 1, "lau_ca_linh_dien_dien": 1, "lau_mam": 1}, "ingredients": {"bong_dien_dien": 2, "bong_sung": 2, "ca_keo": 1, "ca_linh": 5, "ca_loc": 3, "keo_neo": 1}}, "day": 5}
+{"type": "event", "tick": 16540, "phase": "gather", "name": "phase_start", "data": {}, "day": 5}
+{"type": "event", "tick": 16664, "phase": "gather", "name": "gather", "data": {"node_id": "N1", "kind": "bong_dien_dien", "amount": 1}, "day": 5}
+{"type": "event", "tick": 16900, "phase": "gather", "name": "fish_spawned", "data": {"id": "F60", "kind": "ca_keo", "pos": [45, 27]}, "day": 5}
+{"type": "event", "tick": 16904, "phase": "gather", "name": "gather", "data": {"node_id": "N2", "kind": "bong_sung", "amount": 1}, "day": 5}
+{"type": "event", "tick": 17144, "phase": "gather", "name": "gather", "data": {"node_id": "N3", "kind": "keo_neo", "amount": 1}, "day": 5}
+{"type": "event", "tick": 17157, "phase": "gather", "name": "dive", "data": {"pos": [42.61455369707673, 0.5229289486035108]}, "day": 5}
+{"type": "event", "tick": 17260, "phase": "gather", "name": "fish_spawned", "data": {"id": "F61", "kind": "ca_loc", "pos": [45, 16]}, "day": 5}
+{"type": "event", "tick": 17283, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F59", "kind": "ca_linh", "yield": 3}, "day": 5}
+{"type": "event", "tick": 17354, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F61", "kind": "ca_loc", "yield": 1}, "day": 5}
+{"type": "event", "tick": 17511, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F60", "kind": "ca_keo", "yield": 2}, "day": 5}
+{"type": "event", "tick": 17620, "phase": "gather", "name": "fish_spawned", "data": {"id": "F62", "kind": "ca_keo", "pos": [60, 24]}, "day": 5}
+{"type": "event", "tick": 17864, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N1"}, "day": 5}
+{"type": "event", "tick": 17885, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F58", "kind": "ca_loc", "yield": 1}, "day": 5}
+{"type": "event", "tick": 17980, "phase": "gather", "name": "fish_spawned", "data": {"id": "F63", "kind": "ca_loc", "pos": [15, 16]}, "day": 5}
+{"type": "event", "tick": 18016, "phase": "gather", "name": "surface", "data": {"pos": [58.938132434312806, 0.4519715280217296]}, "day": 5}
+{"type": "event", "tick": 18100, "phase": "gather", "name": "gather", "data": {"node_id": "N4", "kind": "bong_dien_dien", "amount": 1}, "day": 5}
+{"type": "event", "tick": 18104, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N2"}, "day": 5}
+{"type": "event", "tick": 18331, "phase": "gather", "name": "gather", "data": {"node_id": "N5", "kind": "bong_sung", "amount": 1}, "day": 5}
+{"type": "event", "tick": 18340, "phase": "gather", "name": "fish_spawned", "data": {"id": "F64", "kind": "ca_keo", "pos": [90, 24]}, "day": 5}
+{"type": "event", "tick": 18344, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N3"}, "day": 5}
+{"type": "event", "tick": 18366, "phase": "gather", "name": "dive", "data": {"pos": [76.3414789413361, 0.5023336588004009]}, "day": 5}
+{"type": "event", "tick": 18639, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F52", "kind": "ca_linh", "yield": 3}, "day": 5}
+{"type": "event", "tick": 18700, "phase": "gather", "name": "fish_spawned", "data": {"id": "F65", "kind": "ca_linh", "pos": [45, 10]}, "day": 5}
+{"type": "event", "tick": 19060, "phase": "gather", "name": "fish_spawned", "data": {"id": "F66", "kind": "ca_keo", "pos": [90, 27]}, "day": 5}
+{"type": "event", "tick": 19300, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N4"}, "day": 5}
+{"type": "event", "tick": 19420, "phase": "gather", "name": "fish_spawned", "data": {"id": "F67", "kind": "ca_loc", "pos": [60, 16]}, "day": 5}
+{"type": "event", "tick": 19531, "phase": "gather", "name": "node_regrown", "data": {"node_id": "N5"}, "day": 5}
+{"type": "event", "tick": 19747, "phase": "gather", "name": "fish_caught", "data": {"fish_id": "F67", "kind": "ca_loc", "yield": 1}, "day": 5}
+{"type": "event", "tick": 19780, "phase": "gather", "name": "fish_spawned", "data": {"id": "F68", "kind": "ca_linh", "pos": [90, 10]}, "day": 5}
+{"type": "event", "tick": 19943, "phase": "gather", "name": "surface", "data": {"pos": [63.227773202062195, 0.4866831950380773]}, "day": 5}
+{"type": "event", "tick": 20140, "phase": "gather", "name": "fish_spawned", "data": {"id": "F69", "kind": "ca_keo", "pos": [75, 24]}, "day": 5}
+{"type": "event", "tick": 20823, "phase": "gather", "name": "gather_end", "data": {"reason": "docked", "inventory": {"items": [{"id": "I27", "kind": "bong_dien_dien", "fresh": 65.34166666663909}, {"id": "I28", "kind": "bong_sung", "fresh": 67.34166666664068}, {"id": "I29", "kind": "keo_neo", "fresh": 69.34166666664227}, {"id": "I30", "kind": "ca_linh", "fresh": 70.49999999997652}, {"id": "I31", "kind": "ca_linh", "fresh": 70.49999999997652}, {"id": "I32", "kind": "ca_linh", "fresh": 70.49999999997652}, {"id": "I33", "kind": "ca_loc", "fresh": 71.09166666664366}, {"id": "I34", "kind": "ca_keo", "fresh": 72.39999999997804}, {"id": "I35", "kind": "ca_keo", "fresh": 72.39999999997804}, {"id": "I36", "kind": "ca_loc", "fresh": 75.51666666664718}, {"id": "I37", "kind": "bong_dien_dien", "fresh": 77.30833333331528}, {"id": "I38", "kind": "bong_sung", "fresh": 79.2333333333168}, {"id": "I39", "kind": "ca_linh", "fresh": 81.79999999998552}, {"id": "I40", "kind": "ca_linh", "fresh": 81.79999999998552}, {"id": "I41", "kind": "ca_linh", "fresh": 81.79999999998552}, {"id": "I42", "kind": "ca_loc", "fresh": 91.0333333333262}]}}, "day": 5}
+{"type": "event", "tick": 20823, "phase": "quan", "name": "phase_start", "data": {}, "day": 5}
+{"type": "event", "tick": 20943, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C15", "table_id": "T1", "dish_id": "goi_bong_sung"}, "day": 5}
+{"type": "event", "tick": 20990, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C15", "dish_id": "goi_bong_sung", "base_price": 29, "items": [{"id": "I28", "kind": "bong_sung", "fresh": 66.64583333330735}, {"id": "I38", "kind": "bong_sung", "fresh": 78.53749999998347}]}, "day": 5}
+{"type": "event", "tick": 21230, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C15", "dish_id": "goi_bong_sung"}, "day": 5}
+{"type": "event", "tick": 21231, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C15", "dish_id": "goi_bong_sung"}, "day": 5}
+{"type": "event", "tick": 21243, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C16", "table_id": "T2", "dish_id": "canh_chua_ca_loc"}, "day": 5}
+{"type": "event", "tick": 21306, "phase": "quan", "name": "served", "data": {"order_id": "C15", "dish_id": "goi_bong_sung", "base_price": 29, "table_id": "T1", "patience_ticks_left": 3237, "tip": 5}, "day": 5}
+{"type": "event", "tick": 21382, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C16", "dish_id": "canh_chua_ca_loc", "base_price": 73, "items": [{"id": "I37", "kind": "bong_dien_dien", "fresh": 74.97916666664861}, {"id": "I42", "kind": "ca_loc", "fresh": 88.70416666665953}]}, "day": 5}
+{"type": "event", "tick": 21543, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C17", "table_id": "T3", "dish_id": "lau_ca_linh_dien_dien"}, "day": 5}
+{"type": "event", "tick": 21584, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B1", "order_id": "C17", "dish_id": "lau_ca_linh_dien_dien", "base_price": 89, "items": [{"id": "I27", "kind": "bong_dien_dien", "fresh": 62.17083333330576}, {"id": "I39", "kind": "ca_linh", "fresh": 78.62916666665218}, {"id": "I40", "kind": "ca_linh", "fresh": 78.62916666665218}, {"id": "I41", "kind": "ca_linh", "fresh": 78.62916666665218}]}, "day": 5}
+{"type": "event", "tick": 21843, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C18", "table_id": "T4", "dish_id": "ca_loc_nuong_trui"}, "day": 5}
+{"type": "event", "tick": 21862, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C16", "dish_id": "canh_chua_ca_loc"}, "day": 5}
+{"type": "event", "tick": 21872, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C16", "dish_id": "canh_chua_ca_loc"}, "day": 5}
+{"type": "event", "tick": 21906, "phase": "quan", "name": "paid", "data": {"order_id": "C15", "table_id": "T1", "base_price": 29, "tip": 5, "amount": 34, "reason": "finished_eating"}, "day": 5}
+{"type": "event", "tick": 22018, "phase": "quan", "name": "served", "data": {"order_id": "C16", "dish_id": "canh_chua_ca_loc", "base_price": 73, "table_id": "T2", "patience_ticks_left": 2825, "tip": 14}, "day": 5}
+{"type": "event", "tick": 22136, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C18", "dish_id": "ca_loc_nuong_trui", "base_price": 42, "items": [{"id": "I36", "kind": "ca_loc", "fresh": 70.04583333331385}]}, "day": 5}
+{"type": "event", "tick": 22143, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C19", "table_id": "T1", "dish_id": "ca_loc_nuong_trui"}, "day": 5}
+{"type": "event", "tick": 22184, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B1", "order_id": "C17", "dish_id": "lau_ca_linh_dien_dien"}, "day": 5}
+{"type": "event", "tick": 22228, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B1", "order_id": "C17", "dish_id": "lau_ca_linh_dien_dien"}, "day": 5}
+{"type": "event", "tick": 22305, "phase": "quan", "name": "served", "data": {"order_id": "C17", "dish_id": "lau_ca_linh_dien_dien", "base_price": 89, "table_id": "T3", "patience_ticks_left": 2838, "tip": 17}, "day": 5}
+{"type": "event", "tick": 22382, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B1", "order_id": "C19", "dish_id": "ca_loc_nuong_trui", "base_price": 38, "items": [{"id": "I33", "kind": "ca_loc", "fresh": 64.59583333331032}]}, "day": 5}
+{"type": "event", "tick": 22496, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C18", "dish_id": "ca_loc_nuong_trui"}, "day": 5}
+{"type": "event", "tick": 22506, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C18", "dish_id": "ca_loc_nuong_trui"}, "day": 5}
+{"type": "event", "tick": 22618, "phase": "quan", "name": "paid", "data": {"order_id": "C16", "table_id": "T2", "base_price": 73, "tip": 14, "amount": 87, "reason": "finished_eating"}, "day": 5}
+{"type": "event", "tick": 22630, "phase": "quan", "name": "served", "data": {"order_id": "C18", "dish_id": "ca_loc_nuong_trui", "base_price": 42, "table_id": "T4", "patience_ticks_left": 2813, "tip": 8}, "day": 5}
+{"type": "event", "tick": 22742, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B1", "order_id": "C19", "dish_id": "ca_loc_nuong_trui"}, "day": 5}
+{"type": "event", "tick": 22743, "phase": "quan", "name": "customer_arrived", "data": {"order_id": "C20", "table_id": "T2", "dish_id": "ca_keo_nuong"}, "day": 5}
+{"type": "event", "tick": 22875, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B1", "order_id": "C19", "dish_id": "ca_loc_nuong_trui"}, "day": 5}
+{"type": "event", "tick": 22905, "phase": "quan", "name": "paid", "data": {"order_id": "C17", "table_id": "T3", "base_price": 89, "tip": 17, "amount": 106, "reason": "finished_eating"}, "day": 5}
+{"type": "event", "tick": 22983, "phase": "quan", "name": "served", "data": {"order_id": "C19", "dish_id": "ca_loc_nuong_trui", "base_price": 38, "table_id": "T1", "patience_ticks_left": 2760, "tip": 7}, "day": 5}
+{"type": "event", "tick": 23043, "phase": "quan", "name": "no_dish", "data": {}, "day": 5}
+{"type": "event", "tick": 23059, "phase": "quan", "name": "cook_started", "data": {"stove_id": "B2", "order_id": "C20", "dish_id": "ca_keo_nuong", "base_price": 44, "items": [{"id": "I34", "kind": "ca_keo", "fresh": 63.08333333331137}, {"id": "I35", "kind": "ca_keo", "fresh": 63.08333333331137}]}, "day": 5}
+{"type": "event", "tick": 23230, "phase": "quan", "name": "paid", "data": {"order_id": "C18", "table_id": "T4", "base_price": 42, "tip": 8, "amount": 50, "reason": "finished_eating"}, "day": 5}
+{"type": "event", "tick": 23343, "phase": "quan", "name": "no_dish", "data": {}, "day": 5}
+{"type": "event", "tick": 23419, "phase": "quan", "name": "dish_ready", "data": {"stove_id": "B2", "order_id": "C20", "dish_id": "ca_keo_nuong"}, "day": 5}
+{"type": "event", "tick": 23420, "phase": "quan", "name": "dish_picked", "data": {"stove_id": "B2", "order_id": "C20", "dish_id": "ca_keo_nuong"}, "day": 5}
+{"type": "event", "tick": 23538, "phase": "quan", "name": "served", "data": {"order_id": "C20", "dish_id": "ca_keo_nuong", "base_price": 44, "table_id": "T2", "patience_ticks_left": 2805, "tip": 8}, "day": 5}
+{"type": "event", "tick": 23583, "phase": "quan", "name": "paid", "data": {"order_id": "C19", "table_id": "T1", "base_price": 38, "tip": 7, "amount": 45, "reason": "finished_eating"}, "day": 5}
+{"type": "event", "tick": 23643, "phase": "quan", "name": "no_dish", "data": {}, "day": 5}
+{"type": "event", "tick": 23943, "phase": "quan", "name": "no_dish", "data": {}, "day": 5}
+{"type": "event", "tick": 24138, "phase": "quan", "name": "paid", "data": {"order_id": "C20", "table_id": "T2", "base_price": 44, "tip": 8, "amount": 52, "reason": "finished_eating"}, "day": 5}
+{"type": "event", "tick": 24138, "phase": "quan", "name": "quan_end", "data": {"reason": "inventory_exhausted", "money": 400, "earned": 1250, "shift_earned": 374, "reputation": 5.0}, "day": 5}
+{"type": "event", "tick": 24138, "phase": "shop", "name": "phase_start", "data": {}, "day": 5}
+{"type": "event", "tick": 24139, "phase": "shop", "name": "shop_end", "data": {"reason": "done"}, "day": 5}

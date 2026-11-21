@@ -1,0 +1,8 @@
+Gather localhost: di chuyển, Space, E cập bến và R chơi lại PASS
+Gather localhost: lặn, đổi khung bơi, về dáng lướt và quay trái/phải PASS
+Quán localhost: bốn hướng, nhiều khung bước, dừng khi thả phím hoặc chạm mép PASS
+Quán localhost: đọc kho cá thể và hàng ươn từ /state PASS
+HUD kho và sprite Quán Chrome 1440px: PASS
+HUD kho và sprite Quán Chrome 1024px: PASS
+HUD kho và sprite Quán Chrome 768px: PASS
+HUD kho và sprite Quán Chrome 390px: PASS

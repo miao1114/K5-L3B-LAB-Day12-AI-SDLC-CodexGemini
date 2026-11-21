@@ -1,0 +1,25 @@
+Branch setup verification: 2026-11-21 (Asia/Bangkok)
+
+Current branch: RESTAURANTEXPANSION
+HEAD / Kitchenserving: 1e7e6c63561cd982539933aca279109ace44bfc1
+Local main / origin/main: f0a1906
+git rev-list --left-right --count Kitchenserving...HEAD: 0 0
+Remote refs were not refreshed during this check.
+
+The current branch already includes the P1-04 Kitchen & Serving commit.
+No merge, rebase, branch change, commit or push was needed or performed.
+Existing edits in TEAM.md and game.contract.json were preserved.
+
+Runtime: .venv/Scripts/python3.exe, Python 3.14.10
+Commands run from the repository root in PowerShell:
+  $env:PATH = (Join-Path $PWD '.venv\Scripts') + ';' + $env:PATH
+  $env:PYTHONPATH = 'tests;.'
+  python3 --version
+  python3 -m unittest discover -s tests -v
+
+Result: exit code 0; Ran 68 tests in 11.207s; OK.
+
+Next-task requirements have not been supplied; no gameplay changes made.
+If the next task depends on P1-04, use Kitchenserving as the PR base while
+that branch is pending merge. Reassess the diff against main after it merges,
+especially if P1-04 is merged using squash or rebase.

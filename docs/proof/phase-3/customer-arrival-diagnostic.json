@@ -1,0 +1,49 @@
+{
+  "empty_stock": [
+    {
+      "type": "event",
+      "tick": 120,
+      "phase": "quan",
+      "name": "no_dish",
+      "data": {}
+    },
+    {
+      "type": "event",
+      "tick": 1020,
+      "phase": "quan",
+      "name": "no_dish",
+      "data": {}
+    }
+  ],
+  "one_ca_loc": [
+    {
+      "type": "event",
+      "tick": 120,
+      "phase": "quan",
+      "name": "customer_arrived",
+      "data": {
+        "order_id": "C1",
+        "table_id": "T1",
+        "dish_id": "ca_loc_nuong_trui"
+      }
+    }
+  ],
+  "customers_at_tick120": [
+    {
+      "id": "C1",
+      "table_id": "T1",
+      "dish_id": "ca_loc_nuong_trui",
+      "state": "waiting",
+      "order_tick": 120,
+      "order_status": "reserved",
+      "reserved": [
+        "I1"
+      ],
+      "patience_ticks_left": 3600,
+      "eat_ticks_left": 0,
+      "base_price": 0,
+      "tip": 0
+    }
+  ],
+  "result": "PASS: schedule correct; empty stock prevents arrival"
+}

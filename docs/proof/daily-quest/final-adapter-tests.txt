@@ -1,0 +1,10 @@
+test_all_day_targets_match_real_day_sim_and_reset_basket (test_phase2_live_preview.LiveDayPreviewTest.test_all_day_targets_match_real_day_sim_and_reset_basket) ... ok
+test_custom_plan_and_prefilled_items_survive_start_and_phase_change (test_phase2_live_preview.LiveDayPreviewTest.test_custom_plan_and_prefilled_items_survive_start_and_phase_change) ... ok
+test_evening_preview_excludes_spoiled_from_cookable_without_discarding_it (test_phase2_live_preview.LiveDayPreviewTest.test_evening_preview_excludes_spoiled_from_cookable_without_discarding_it) ... ok
+test_real_catch_transfers_stock_and_real_service_is_paid (test_phase2_live_preview.LiveDayPreviewTest.test_real_catch_transfers_stock_and_real_service_is_paid) ... ok
+test_real_faint_does_not_create_sample_inventory (test_phase2_live_preview.LiveDayPreviewTest.test_real_faint_does_not_create_sample_inventory) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.112s
+
+OK

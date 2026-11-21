@@ -1,0 +1,115 @@
+test_catch_cooldown_available_at_t_plus_l (test_gather_collection.GatherCollection.test_catch_cooldown_available_at_t_plus_l) ... ok
+test_catch_nearest_and_invalid_phase_or_range (test_gather_collection.GatherCollection.test_catch_nearest_and_invalid_phase_or_range) ... ok
+test_catch_underwater_radius_tie_yield_and_edge (test_gather_collection.GatherCollection.test_catch_underwater_radius_tie_yield_and_edge) ... ok
+test_dock_precedes_harvest_at_boundary (test_gather_collection.GatherCollection.test_dock_precedes_harvest_at_boundary) ... ok
+test_fainted_clears_hold_before_inventory_written (test_gather_collection.GatherCollection.test_fainted_clears_hold_before_inventory_written)
+Phụ thuộc Lát 1: để thất bại thật đến khi Người 1 hoàn thiện ngất. ... ok
+test_fish_hold_full_never_takes_partial_or_fallback (test_gather_collection.GatherCollection.test_fish_hold_full_never_takes_partial_or_fallback) ... ok
+test_harvest_edge_radius_and_numeric_id_tie (test_gather_collection.GatherCollection.test_harvest_edge_radius_and_numeric_id_tie) ... ok
+test_harvest_full_does_not_change_node_or_try_another (test_gather_collection.GatherCollection.test_harvest_full_does_not_change_node_or_try_another) ... ok
+test_harvest_nearest_and_surface_only (test_gather_collection.GatherCollection.test_harvest_nearest_and_surface_only) ... ok
+test_headless_inventory_round_trip_into_quan (test_gather_collection.GatherCollection.test_headless_inventory_round_trip_into_quan) ... ok
+test_last_tick_harvest_catch_and_dock (test_gather_collection.GatherCollection.test_last_tick_harvest_catch_and_dock) ... ok
+test_node_not_ready_cannot_be_harvested (test_gather_collection.GatherCollection.test_node_not_ready_cannot_be_harvested) ... ok
+test_node_yield_comes_from_tuning (test_gather_collection.GatherCollection.test_node_yield_comes_from_tuning) ... ok
+test_regrown_node_can_be_harvested_same_tick (test_gather_collection.GatherCollection.test_regrown_node_can_be_harvested_same_tick) ... ok
+test_tick_limit_neither_creates_nor_overwrites_inventory (test_gather_collection.GatherCollection.test_tick_limit_neither_creates_nor_overwrites_inventory) ... ok
+test_giỏ_day_12_chap_nhan_va_tren_12_tu_choi (test_gather_sinh_ton.Hold.test_giỏ_day_12_chap_nhan_va_tren_12_tu_choi) ... ok
+test_het_gio_ghi_kho_theo_so_luong_trong_gio (test_gather_sinh_ton.Hold.test_het_gio_ghi_kho_theo_so_luong_trong_gio) ... ok
+test_ngat_giỏ_day_mat_het (test_gather_sinh_ton.Hold.test_ngat_giỏ_day_mat_het) ... ok
+test_snapshot_giu_thu_tu_nhat_lifo (test_gather_sinh_ton.Hold.test_snapshot_giu_thu_tu_nhat_lifo) ... ok
+test_dive_khi_roi_mat_nuoc (test_gather_sinh_ton.Survival.test_dive_khi_roi_mat_nuoc) ... ok
+test_hoi_oxy_reset_bo_dem_ngat (test_gather_sinh_ton.Survival.test_hoi_oxy_reset_bo_dem_ngat) ... ok
+test_invuln_chan_ngat (test_gather_sinh_ton.Survival.test_invuln_chan_ngat) ... ok
+test_mau_ve_0_ngat_xiu_mat_gio (test_gather_sinh_ton.Survival.test_mau_ve_0_ngat_xiu_mat_gio) ... ok
+test_ngat_mat_1_mau_dung_choke_interval (test_gather_sinh_ton.Survival.test_ngat_mat_1_mau_dung_choke_interval) ... ok
+test_oxy_giam_moi_tick_duoi_nuoc (test_gather_sinh_ton.Survival.test_oxy_giam_moi_tick_duoi_nuoc) ... ok
+test_oxy_hoi_moi_tick_o_mat_nuoc_va_kep_max (test_gather_sinh_ton.Survival.test_oxy_hoi_moi_tick_o_mat_nuoc_va_kep_max) ... ok
+test_oxygen_empty_dung_dung_mot_lan (test_gather_sinh_ton.Survival.test_oxygen_empty_dung_dung_mot_lan) ... ok
+test_surface_khi_noi_len (test_gather_sinh_ton.Survival.test_surface_khi_noi_len) ... ok
+test_headless_full_shift_events_snapshots_and_deterministic_bytes (test_kitchen_serving.KitchenIntegration.test_headless_full_shift_events_snapshots_and_deterministic_bytes) ... ok
+test_live_http_quan_input_snapshot_payment_and_restart (test_kitchen_serving.KitchenIntegration.test_live_http_quan_input_snapshot_payment_and_restart) ... ok
+test_busy_stove_cannot_cook_or_pick (test_kitchen_serving.KitchenServing.test_busy_stove_cannot_cook_or_pick) ... ok
+test_closing_discards_all_unserved_dish_locations_without_refund (test_kitchen_serving.KitchenServing.test_closing_discards_all_unserved_dish_locations_without_refund) ... ok
+test_closing_pays_eating_and_releases_waiting_without_penalty (test_kitchen_serving.KitchenServing.test_closing_pays_eating_and_releases_waiting_without_penalty) ... ok
+test_cook_consumes_exact_recipe_and_emits_sorted_items_for_each_dish (test_kitchen_serving.KitchenServing.test_cook_consumes_exact_recipe_and_emits_sorted_items_for_each_dish) ... ok
+test_eating_finishes_normally_before_closing_settlement (test_kitchen_serving.KitchenServing.test_eating_finishes_normally_before_closing_settlement) ... ok
+test_equal_distance_stoves_use_natural_id_and_only_one_action (test_kitchen_serving.KitchenServing.test_equal_distance_stoves_use_natural_id_and_only_one_action) ... ok
+test_euclidean_radius_inclusive_and_outside_rejected (test_kitchen_serving.KitchenServing.test_euclidean_radius_inclusive_and_outside_rejected) ... ok
+test_final_tick_keeps_ready_event_before_closing_cleanup (test_kitchen_serving.KitchenServing.test_final_tick_keeps_ready_event_before_closing_cleanup) ... ok
+test_full_hand_cannot_pick_or_duplicate_dish (test_kitchen_serving.KitchenServing.test_full_hand_cannot_pick_or_duplicate_dish) ... ok
+test_held_interact_does_not_pick_when_cooking_finishes (test_kitchen_serving.KitchenServing.test_held_interact_does_not_pick_when_cooking_finishes) ... ok
+test_insufficient_or_wrong_reservation_does_not_partially_consume (test_kitchen_serving.KitchenServing.test_insufficient_or_wrong_reservation_does_not_partially_consume) ... ok
+test_invalid_ownership_and_overreservation_exit_2_before_output (test_kitchen_serving.KitchenServing.test_invalid_ownership_and_overreservation_exit_2_before_output) ... ok
+test_leave_clears_cooking_ready_and_hand_without_refund (test_kitchen_serving.KitchenServing.test_leave_clears_cooking_ready_and_hand_without_refund) ... ok
+test_minimal_customer_fixture_uses_contract_defaults (test_kitchen_serving.KitchenServing.test_minimal_customer_fixture_uses_contract_defaults) ... ok
+test_movement_precedes_interaction (test_kitchen_serving.KitchenServing.test_movement_precedes_interaction) ... ok
+test_nearest_unusable_object_blocks_fallback_and_tie_prefers_stove (test_kitchen_serving.KitchenServing.test_nearest_unusable_object_blocks_fallback_and_tie_prefers_stove) ... ok
+test_no_reserved_order_cannot_cook (test_kitchen_serving.KitchenServing.test_no_reserved_order_cannot_cook) ... ok
+test_nondefault_tuning_controls_cook_eat_tip_carry_and_movement (test_kitchen_serving.KitchenServing.test_nondefault_tuning_controls_cook_eat_tip_carry_and_movement) ... ok
+test_oldest_order_then_natural_table_id_and_other_reservation_preserved (test_kitchen_serving.KitchenServing.test_oldest_order_then_natural_table_id_and_other_reservation_preserved) ... ok
+test_payment_adds_to_existing_totals_and_no_tip_preserves_reputation (test_kitchen_serving.KitchenServing.test_payment_adds_to_existing_totals_and_no_tip_preserves_reputation) ... ok
+test_payment_and_leaving_order_follow_table_ids_instead_of_customer_ids (test_kitchen_serving.KitchenServing.test_payment_and_leaving_order_follow_table_ids_instead_of_customer_ids) ... ok
+test_pick_preserves_order_price_and_resets_stove (test_kitchen_serving.KitchenServing.test_pick_preserves_order_price_and_resets_stove) ... ok
+test_ready_events_are_sorted_by_natural_stove_id (test_kitchen_serving.KitchenServing.test_ready_events_are_sorted_by_natural_stove_id) ... ok
+test_ready_exact_tick_once_and_ready_ticks_start_next_step_no_burning (test_kitchen_serving.KitchenServing.test_ready_exact_tick_once_and_ready_ticks_start_next_step_no_burning) ... ok
+test_ready_then_pick_on_same_tick_and_no_decrement_of_new_eating_timer (test_kitchen_serving.KitchenServing.test_ready_then_pick_on_same_tick_and_no_decrement_of_new_eating_timer) ... ok
+test_reputation_clamps_high_and_low_without_float_drift (test_kitchen_serving.KitchenServing.test_reputation_clamps_high_and_low_without_float_drift) ... ok
+test_reserved_leave_releases_claim_without_consuming_stock (test_kitchen_serving.KitchenServing.test_reserved_leave_releases_claim_without_consuming_stock) ... ok
+test_serve_on_closing_tick_gets_paid_then_end_once (test_kitchen_serving.KitchenServing.test_serve_on_closing_tick_gets_paid_then_end_once) ... ok
+test_serve_on_zero_patience_tick_is_allowed (test_kitchen_serving.KitchenServing.test_serve_on_zero_patience_tick_is_allowed) ... ok
+test_service_on_both_zero_patience_and_closing_tick (test_kitchen_serving.KitchenServing.test_service_on_both_zero_patience_and_closing_tick) ... ok
+test_timeout_after_cook_started_does_not_refund_consumed_inventory (test_kitchen_serving.KitchenServing.test_timeout_after_cook_started_does_not_refund_consumed_inventory) ... ok
+test_tip_boundary_uses_patience_after_decrement (test_kitchen_serving.KitchenServing.test_tip_boundary_uses_patience_after_decrement) ... ok
+test_tips_for_all_prices_payment_delayed_and_once (test_kitchen_serving.KitchenServing.test_tips_for_all_prices_payment_delayed_and_once) ... ok
+test_wrong_table_order_or_dish_not_served (test_kitchen_serving.KitchenServing.test_wrong_table_order_or_dish_not_served) ... ok
+test_state_input_and_clean_stop (test_live.LiveServerTest.test_state_input_and_clean_stop) ... ok
+test_bad_frames_raise (test_python_starter_units.Units.test_bad_frames_raise) ... ok
+test_catch_is_a_v10_button_and_attack_is_not (test_python_starter_units.Units.test_catch_is_a_v10_button_and_attack_is_not) ... ok
+test_id_allocator_continues_after_max (test_python_starter_units.Units.test_id_allocator_continues_after_max) ... ok
+test_id_sorting (test_python_starter_units.Units.test_id_sorting) ... ok
+test_input_edges_and_inherit (test_python_starter_units.Units.test_input_edges_and_inherit) ... ok
+test_live_inputs_keep_fast_tap_edge (test_python_starter_units.Units.test_live_inputs_keep_fast_tap_edge) ... ok
+test_session_steps_gather_and_dock (test_python_starter_units.Units.test_session_steps_gather_and_dock) ... ok
+test_closing_releases_reserved_order_without_penalty_or_new_customer (test_quan_customers.QuanCustomersTest.test_closing_releases_reserved_order_without_penalty_or_new_customer) ... ok
+test_customer_fixture_conflicts_fail_before_output (test_quan_customers.QuanCustomersTest.test_customer_fixture_conflicts_fail_before_output) ... ok
+test_expiry_refunds_only_held_stock_and_releases_table (test_quan_customers.QuanCustomersTest.test_expiry_refunds_only_held_stock_and_releases_table) ... ok
+test_headless_customer_reserves_from_inventory_at_scheduled_tick (test_quan_customers.QuanCustomersTest.test_headless_customer_reserves_from_inventory_at_scheduled_tick) ... ok
+test_seeded_orders_are_byte_stable (test_quan_customers.QuanCustomersTest.test_seeded_orders_are_byte_stable) ... ok
+test_two_tables_cannot_reserve_the_same_ingredient (test_quan_customers.QuanCustomersTest.test_two_tables_cannot_reserve_the_same_ingredient) ... ok
+test_headless_spawn_cook_serve_pay_is_deterministic (test_quan_integration.QuanIntegration.test_headless_spawn_cook_serve_pay_is_deterministic) ... ok
+test_spawned_customer_served_at_zero_patience_on_closing_tick (test_quan_integration.QuanIntegration.test_spawned_customer_served_at_zero_patience_on_closing_tick) ... ok
+test_spawned_customer_timeout_cleans_each_dish_location_once (test_quan_integration.QuanIntegration.test_spawned_customer_timeout_cleans_each_dish_location_once) ... ok
+test_con_01_ticks_zero_and_end_line (test_smoke_p1.Contract.test_con_01_ticks_zero_and_end_line) ... ok
+test_con_02_deterministic_bytes (test_smoke_p1.Contract.test_con_02_deterministic_bytes) ... ok
+test_con_03_bad_input_exit_2 (test_smoke_p1.Contract.test_con_03_bad_input_exit_2) ... ok
+test_con_03_old_and_future_modes_rejected (test_smoke_p1.Contract.test_con_03_old_and_future_modes_rejected) ... ok
+test_gather_snapshot_has_gather_fields (test_smoke_p1.Contract.test_gather_snapshot_has_gather_fields) ... ok
+test_scenario_out_of_domain_exit_2 (test_smoke_p1.Contract.test_scenario_out_of_domain_exit_2) ... ok
+test_inv_01_gather_writes_inventory_quan_reads_it (test_smoke_p1.Integration.test_inv_01_gather_writes_inventory_quan_reads_it)
+Ví dụ smoke test trong PRD-0 mục G: cập bến ở tick 0, quán đọc kho đúng nội dung. ... ok
+test_inv_01_not_written_when_tick_limit_first (test_smoke_p1.Integration.test_inv_01_not_written_when_tick_limit_first) ... ok
+test_inv_bad_schema_exit_2 (test_smoke_p1.Integration.test_inv_bad_schema_exit_2) ... ok
+test_inventory_and_scenario_stock_conflict (test_smoke_p1.Integration.test_inventory_and_scenario_stock_conflict) ... ok
+test_inventory_flags_mode_mismatch_exit_2 (test_smoke_p1.Integration.test_inventory_flags_mode_mismatch_exit_2) ... ok
+test_move_01_swim_speed_after_ramp (test_smoke_p1.Movement.test_move_01_swim_speed_after_ramp)
+Bỏ 6 tick tăng tốc rồi đo 60 tick: quãng ≈ swim_speed × 1 s (±0.1). Ngang, xuống, chéo (không nhanh hơn). ... ok
+test_move_02_heading_positive_is_down (test_smoke_p1.Movement.test_move_02_heading_positive_is_down) ... ok
+test_move_03_edge_clamp (test_smoke_p1.Movement.test_move_03_edge_clamp)
+Chặn từng mép của vùng nước, kể cả d không âm (không bay lên khỏi mặt nước) và đáy d = 30. ... ok
+test_move_mep_vel_ve_0 (test_smoke_p1.Movement.test_move_mep_vel_ve_0) ... ok
+test_move_ramp_doi_huong_trong_tran (test_smoke_p1.Movement.test_move_ramp_doi_huong_trong_tran)
+Đảo từ +speed sang -speed: vận tốc chạm mục tiêu sau tối đa ramp_max_ticks tick kể từ lúc đổi input. ... ok
+test_time_ends_gather_and_keeps_hold (test_smoke_p1.Movement.test_time_ends_gather_and_keeps_hold) ... ok
+test_khoi_sai_mode_exit_2 (test_smoke_p1.ScenarioModes.test_khoi_sai_mode_exit_2) ... ok
+test_quan_fixture_khong_hop_le_exit_2 (test_smoke_p1.ScenarioModes.test_quan_fixture_khong_hop_le_exit_2) ... ok
+test_quan_player_vel_hop_le (test_smoke_p1.ScenarioModes.test_quan_player_vel_hop_le) ... ok
+test_good (test_team_check.TeamCheck.test_good) ... ok
+test_template_is_rejected (test_team_check.TeamCheck.test_template_is_rejected) ... ok
+test_too_few_members (test_team_check.TeamCheck.test_too_few_members) ... ok
+test_wrong_size_duplicate_and_outsider (test_team_check.TeamCheck.test_wrong_size_duplicate_and_outsider) ... ok
+
+----------------------------------------------------------------------
+Ran 105 tests in 17.015s
+
+OK

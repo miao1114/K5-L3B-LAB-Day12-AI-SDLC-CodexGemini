@@ -51,6 +51,24 @@
   button:active { transform: translateY(1px); }
   button:disabled { cursor: wait; opacity: .65; }
   .game { display: grid; grid-template-columns: minmax(0, 1fr) minmax(244px, 24%); align-items: start; gap: 16px; }
+  .game[data-mode="gather"] { grid-template-columns: 218px minmax(0, 1fr) minmax(244px, 24%); }
+  .quest { padding: 16px 12px; border: 1px solid #b99b66; border-radius: 9px;
+    color: var(--paper-ink); background: var(--paper); font-size: 18px; min-width: 0; }
+  .quest h2 { font: 700 18px/1.4 system-ui, sans-serif; text-transform: uppercase; }
+  .quest ul { list-style: none; padding: 0; margin: 12px 0; }
+  .quest li { padding: 8px 0; border-top: 1px solid var(--paper-line); }
+  .quest-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .quest-row img { width: 26px; height: 26px; object-fit: contain; }
+  .quest-row b { margin-left: auto; white-space: nowrap; }
+  .quest progress { width: 100%; margin-top: 6px; height: 8px; --fill: #39704d; }
+  .quest small { display: block; color: var(--paper-soft); font-size: 14px; }
+  .quest .complete { color: #215d35; }
+  #quest-status { font-size: 16px; }
+  @media (max-width: 1100px) {
+    .game[data-mode="gather"] { grid-template-columns: minmax(0, 1fr) minmax(244px, 24%); }
+    .quest { grid-column: 1 / -1; }
+    .quest ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  }
   .playfield, .ledger { min-width: 0; border-radius: 9px; overflow: hidden; }
   .playfield { border: 1px solid var(--line); background: var(--surface); }
   .hud { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; padding: 14px 18px; }
@@ -112,6 +130,9 @@
   .profile img { width: auto; height: 157px; max-width: 100%; object-fit: contain; align-self: end; }
   .tray { padding: 14px 16px; border-top: 1px solid var(--paper-line); }
   .slots { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; margin-top: 9px; }
+  .slot { position: relative; }
+  .stack-quantity { position: absolute; right: 0; bottom: 0; padding: 0 2px;
+    background: var(--paper); color: var(--paper-ink); font: bold 13px/1.2 system-ui, sans-serif; }
   .slot {
     display: grid; place-items: center; aspect-ratio: 1; max-height: 40px;
     border: 1px solid #bba17b; border-radius: 4px; background: #e9d8b6; font-size: .75rem;
@@ -146,6 +167,7 @@
   @media (max-width: 940px) {
     .shell { width: calc(100% - 36px); }
     .game { grid-template-columns: minmax(0, 1fr); }
+    .game[data-mode="gather"] { grid-template-columns: minmax(0, 1fr); }
     .ledger { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
     .tray { border-top: 0; border-left: 1px solid var(--paper-line); }
     .slots { max-width: 280px; }
@@ -203,6 +225,9 @@
   .flow .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr)); gap: 8px; }
   .fact, .upgrade { border: 1px solid var(--paper-line); background: #ffefc8; padding: 9px 11px; }
   .fact b, .upgrade b { display: block; }
+  .collection-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; }
+  .flow .collection-results section { margin-block: 6px; }
+  @media (max-width: 540px) { .collection-results { grid-template-columns: minmax(0, 1fr); } }
   .upgrade { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
   .shop-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(238px, 100%), 1fr)); gap: 9px; margin-block: 14px; }
   .pause-actions { justify-content: center; }
@@ -242,6 +267,11 @@
   </section>
 
   <div class="game" id="game">
+    <aside class="quest" id="daily-quest" aria-labelledby="quest-title" hidden>
+      <h2 id="quest-title"></h2>
+      <ul id="quest-items" role="list"></ul>
+      <p id="quest-status" role="status" aria-live="polite"></p>
+    </aside>
     <section class="playfield" id="playfield" aria-labelledby="season" tabindex="-1">
       <header class="hud">
         <div class="season">
@@ -657,7 +687,8 @@ function gatherHint(s) {
   const cooldown = p.catch_cd_ticks > 0 ?
     `Hồi bắt · ${number(Math.ceil(p.catch_cd_ticks * 10 / tickRate()) / 10)}s` : "";
   const withCooldown = hint => cooldown ? hint + "  |  " + cooldown : hint;
-  const free = Array.isArray(s.hold) && num(s.hold_capacity) ? s.hold_capacity - s.hold.length : null;
+  const free = Array.isArray(s.hold) && num(s.hold_capacity) ?
+    s.hold_capacity - (s.hold_slots_used ?? s.hold.length) : null;
   const surface = typeof p.at_surface === "boolean" ? p.at_surface :
     num(m.surface_depth) ? p.pos[1] <= m.surface_depth : null;
   if (near(p.pos, m.dock_pos, m.dock_radius)) {
@@ -677,7 +708,8 @@ function gatherHint(s) {
     if (cooldown) return cooldown;
     const fish = list(s.fish).filter(f => near(p.pos, f.pos, m.catch_radius));
     if (fish.length && free !== null && num(p.catch_cd_ticks)) {
-      if (free <= 0 || fish.every(f => num(m.fish_yield?.[f.kind]) && free < m.fish_yield[f.kind])) {
+      if (free <= 0 || fish.every(f => num(m.fish_yield?.[f.kind]) &&
+          free < (Array.isArray(s.hold_slots) && f.kind === "ca_linh" ? 1 : m.fish_yield[f.kind]))) {
         return "Giỏ không đủ chỗ";
       }
       if (fish.some(f => num(m.fish_yield?.[f.kind]))) return "Space · Bắt cá";
@@ -716,6 +748,7 @@ function itemizedInventory(items, threshold, empty, reserved = new Set()) {
   }).join("") + "</ul>";
 }
 function renderGather(s) {
+  renderDailyQuest(s);
   const p = s.player ?? {};
   const low = num(p.oxygen_ticks) && p.oxygen_max_ticks > 0 && p.oxygen_ticks <= p.oxygen_max_ticks / 4;
   const oxy = `<div class="metric${low ? " danger" : ""}"><span${low ? ' class="danger"' : ""}>${low ? "Oxy thấp — nổi lên!" : "Oxy"}</span>
@@ -724,25 +757,66 @@ function renderGather(s) {
     metric("Máu", number(p.hp) + (num(p.hp_max) ? " / " + number(p.hp_max) : "")) +
     (day ? metric("Độ sâu", position(p.pos) ? number(Math.round(p.pos[1] * 10) / 10) + " m" : "—") : ""));
   const hold = list(s.hold);
+  const slots = Array.isArray(s.hold_slots) ? s.hold_slots : hold;
   const capacity = Number.isInteger(s.hold_capacity) && s.hold_capacity >= 0 ? s.hold_capacity : null;
-  setText("hold-title", `Giỏ · ${Array.isArray(s.hold) ? hold.length : "—"}/${capacity ?? "—"}`);
+  setText("hold-title", `Giỏ · ${Array.isArray(s.hold) ? slots.length : "—"}/${capacity ?? "—"}` +
+    (Array.isArray(s.hold_slots) ? ` ô · ${hold.length} nguyên liệu` : ""));
   setHTML("slots", capacity === null || !Array.isArray(s.hold) ? "" :
     Array.from({ length: capacity }, (_, index) => {
-      if (index >= hold.length) return '<span class="slot"></span>';
-      const item = hold[index];
+      if (index >= slots.length) return '<span class="slot"></span>';
+      const item = slots[index];
       const icon = known(itemIcons, ingredientKind(item));
-      const spoiled = isSpoiled(item, s.meta?.spoil_threshold);
-      return `<span class="slot filled${spoiled ? " spoiled" : ""}">${icon ? `<img alt="" src="${icon}">` : "?"}</span>`;
+      const physical = Array.isArray(item?.item_ids) ? hold.filter(i => item.item_ids.includes(i.id)) : [item];
+      const spoiled = physical.length > 0 && physical.every(i => isSpoiled(i, s.meta?.spoil_threshold));
+      return `<span class="slot filled${spoiled ? " spoiled" : ""}">${icon ? `<img alt="" src="${icon}">` : "?"}` +
+        (item?.quantity > 1 ? `<b class="stack-quantity">×${number(item.quantity)}</b>` : "") + "</span>";
     }).join(""));
   setHTML("hold-summary", hold.some(record) ?
     itemizedInventory(hold, s.meta?.spoil_threshold, "Giỏ trống.") : escapeHTML(holdSummary(s.hold)));
-  const targets = record(day?.needed) ? Object.entries(day.needed).filter(([, count]) => num(count) && count > 0) : [];
-  $("goal-line").hidden = !targets.length;
-  setText("goal-line", targets.length ? "Mục tiêu · " + targets.map(([id, n]) =>
-    `${capitalize(itemName(id))} ${hold.filter(item => ingredientKind(item) === id).length}/${number(n)}`).join(" · ") : "");
   const chasing = list(s.monsters).some(m => m.state === "chase");
   setText("hint", canPlay() ? [chasing ? "Cá sấu đang đuổi!" : "", day?.fixture ? "Bản thử · E kết thúc ca" : gatherHint(s)]
     .filter(Boolean).join(" · ") : "");
+}
+function currentDayPlan() {
+  return record(day?.day_plan) ? day.day_plan : record(snap?.day_plan) ? snap.day_plan :
+    record(day?.needed) ? { ingredients: day.needed } : null;
+}
+function renderDailyQuest(s) {
+  const plan = currentDayPlan();
+  const targets = record(plan?.ingredients) ? Object.entries(plan.ingredients).filter(([, n]) => num(n) && n > 0) : [];
+  const dayNumber = plan?.day ?? day?.day ?? s.day;
+  setText("quest-title", targets.length ? `Nhiệm vụ ngày ${number(dayNumber)}` : "Chế độ thu thập tự do");
+  const threshold = s.meta?.spoil_threshold;
+  const counts = new Map();
+  for (const item of list(s.hold)) {
+    const kind = ingredientKind(item);
+    const count = counts.get(kind) ?? { total: 0, usable: 0, spoiled: 0 };
+    count.total++;
+    // Itemized v1.2 requires a known threshold; never count unknown freshness as usable.
+    if (record(item)) {
+      if (num(item.fresh) && num(threshold)) {
+        if (isSpoiled(item, threshold)) count.spoiled++;
+        else count.usable++;
+      }
+    } else if (typeof item === "string") count.usable++; // legacy UI fixture
+    counts.set(kind, count);
+  }
+  let complete = targets.length > 0;
+  setHTML("quest-items", targets.map(([kind, target]) => {
+    const { total, usable, spoiled } = counts.get(kind) ?? { total: 0, usable: 0, spoiled: 0 };
+    const done = usable >= target;
+    complete = complete && done;
+    const icon = known(itemIcons, kind);
+    const name = escapeHTML(capitalize(itemName(kind)));
+    return `<li data-kind="${escapeHTML(kind)}" class="${done ? "complete" : ""}">
+      <div class="quest-row">${icon ? `<img src="${icon}" alt="">` : ""}<span>${name}</span>
+        <b>${number(usable)}/${number(target)}${done ? ' <span aria-label="Đạt mục tiêu">✓</span>' : ""}</b></div>
+      ${meter(usable, target, name)}<small>Đang giữ ${number(total)} · Ươn ${number(spoiled)}</small></li>`;
+  }).join(""));
+  $("daily-quest").dataset.complete = String(complete);
+  // setText only changes the live region on state transitions, never on every frame.
+  setText("quest-status", complete ? "Đã đủ nguyên liệu cho thực đơn hôm nay!" :
+    targets.length ? "Thu đủ nguyên liệu còn tươi để mở quán." : "Không có kế hoạch ngày trong chế độ này.");
 }
 function renderQuan(s) {
   setHTML("metrics", metric("Còn lại", duration(s.time_left_ticks)) +
@@ -755,7 +829,7 @@ function renderQuan(s) {
   } else {
     renderCountStock(s, customers);
   }
-  setHTML("tickets", "<h2>Đơn hàng</h2>" + (customers.length ? customers.map(c => {
+  setHTML("tickets", unlockedMenuHTML() + "<h2>Đơn hàng</h2>" + (customers.length ? customers.map(c => {
     const state = c.state === "eating" ? "Đang ăn" : known({
       reserved: "Đã giữ nguyên liệu", assigned: "Đã nhận đơn", unfulfillable: "Thiếu nguyên liệu"
     }, c.order_status) ?? known({ waiting: "Đang chờ", assigned: "Đã nhận đơn" }, c.state) ?? "Chưa rõ trạng thái";
@@ -795,6 +869,11 @@ const flowTitles = {
   menu: "Bắt đầu chuyến chợ", day_intro: "Thực đơn Má Tư", evening_intro: "Chuẩn bị mở quán",
   day_result: "Kết quả trong ngày", shop: "Ghé hàng nâng cấp", summary: "Kết thúc chuyến chợ"
 };
+function unlockedMenuHTML() {
+  if (!Array.isArray(day?.unlocked_menu)) return "";
+  return '<section class="unlocked-menu"><h2>Thực đơn đã mở</h2><p>' +
+    day.unlocked_menu.map(d => escapeHTML(dishName(d))).join(" · ") + "</p></section>";
+}
 let lastFlow = "";
 function flowButton(action, label, disabled = false, upgrade = null, accessibleLabel = "") {
   return `<button type="button" data-action="${action}"${upgrade === null ? "" : ` data-upgrade="${escapeHTML(upgrade)}"`}
@@ -802,10 +881,23 @@ function flowButton(action, label, disabled = false, upgrade = null, accessibleL
 }
 function resultFacts(result) {
   if (!record(result)) return "<p>Đang chờ kết quả từ máy chủ.</p>";
-  return '<div class="facts">' + [
+  const facts = [
     ["Đã phục vụ", result.served], ["Khách bỏ đi", result.left], ["Doanh thu (nghìn)", result.earned],
     ["Tiền boa (nghìn)", result.tips], ["Số dư (nghìn)", result.money], ["Uy tín", result.reputation]
-  ].map(([label, value]) => `<div class="fact">${label}<b>${number(value)}</b></div>`).join("") + "</div>";
+  ];
+  if (record(result.caught)) facts.push(["Món bán thành công", result.sold],
+    ["Tổng cá đã bắt", Object.values(result.caught).reduce((sum, count) => sum + count, 0)]);
+  const totals = '<div class="facts">' + facts.map(([label, value]) =>
+    `<div class="fact">${label}<b>${number(value)}</b></div>`).join("") + "</div>";
+  if (!record(result.caught)) return totals;
+  const fish = Object.entries(result.caught).map(([kind, count]) =>
+    `<li>${escapeHTML(capitalize(itemName(kind)))}: ${number(count)} con (${number(result.schools?.[kind])} đàn)</li>`).join("");
+  return (result.reason === "inventory_exhausted" ?
+    "<p>Đã hết nguyên liệu có thể chế biến. Ca Quán đã kết thúc.</p>" : "") + totals +
+    '<div class="collection-results"><section><h3>Cá đã bắt</h3>' + (fish ? `<ul>${fish}</ul>` : "<p>Chưa bắt cá.</p>") + "</section>" +
+    [["Rau đã hái", result.harvested], ["Nguyên liệu mang về", result.brought],
+     ["Đã dùng nấu", result.used], ["Còn tồn cuối ca", result.remaining], ["Hàng ươn còn tồn", result.spoiled]]
+      .map(([label, items]) => `<section><h3>${label}</h3>${itemList(items, "Không có.")}</section>`).join("") + "</div>";
 }
 function dishesList(items, empty) {
   if (!Array.isArray(items)) return "<p>Đang chờ dữ liệu.</p>";
@@ -825,15 +917,19 @@ function renderDay() {
     buttons = flowButton("resume", "Tiếp tục") + flowButton("menu", "Về menu");
   } else if (stage === "menu") {
     body = "<p>Thu nguyên liệu buổi sáng, mở quán khi trời tối.</p>" +
-      (day.live_scenes ? '<p class="subtle">Gather và Quán dùng mô phỏng thật. Shop chưa kết nối với giao diện này.</p>' : "");
+      (day.enhanced ? '<p class="subtle">Chơi 5 ngày · Cá linh theo đàn · Quán tự đóng khi hết món · Shop thật.</p>' :
+       day.live_scenes ? '<p class="subtle">Gather và Quán dùng mô phỏng thật. Shop chưa kết nối với giao diện này.</p>' : "");
     buttons = flowButton("start", "Chơi") + flowButton("exit", "Thoát");
   } else if (stage === "exited") {
     body = "<p>Bạn có thể đóng tab này hoặc quay lại menu.</p>";
     buttons = flowButton("return", "Mở menu");
   } else if (stage === "day_intro") {
-    body = dishesList(day.menu, "Chưa có món trong kế hoạch.") +
-      (day.live_scenes ? "<p>Hái hoặc bắt nguyên liệu, sau đó quay về bến và nhấn E để chốt giỏ.</p>" :
-      '<section class="ingredient-goal"><h3>Nguyên liệu cần thu</h3>' + itemList(day.needed, "Chưa có mục tiêu nguyên liệu.") + "</section>");
+    body = (list(day.newly_unlocked).length ? '<p role="status">Đã mở khóa món mới! ' +
+      day.newly_unlocked.map(d => escapeHTML(dishName(d))).join(" · ") + "</p>" : "") +
+      unlockedMenuHTML() + dishesList(day.menu, "Chưa có món trong kế hoạch.") +
+      '<section class="ingredient-goal"><h3>Nguyên liệu cần thu</h3>' +
+      itemList(currentDayPlan()?.ingredients, "Chưa có mục tiêu nguyên liệu.") + "</section>" +
+      "<p>Hái hoặc bắt nguyên liệu, sau đó quay về bến và nhấn E để chốt giỏ.</p>";
     buttons = flowButton("continue", "Ra bến");
   } else if (stage === "evening_intro") {
     body = (day.gather_reason === "fainted" ? "<p>Bà Út bị ngất. Giỏ đã rỗng.</p>" : "") +
@@ -876,6 +972,7 @@ function render() {
   setText("skip", flow ? "Đến nội dung" : "Đến màn chơi");
   $("flow").hidden = !flow;
   $("game").hidden = Boolean(flow);
+  $("daily-quest").hidden = !gather || Boolean(flow);
   $("restart").hidden = Boolean(day);
   $("pause").hidden = !day?.can_pause || Boolean(day?.paused);
   $("pause").disabled = actionPending || Boolean(problem) || Boolean(day?.error);

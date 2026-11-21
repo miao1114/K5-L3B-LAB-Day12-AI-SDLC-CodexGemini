@@ -1,0 +1,15 @@
+test_real_catch_transfers_stock_and_real_service_is_paid (test_phase2_live_preview.LiveDayPreviewTest.test_real_catch_transfers_stock_and_real_service_is_paid) ... ok
+test_real_faint_does_not_create_sample_inventory (test_phase2_live_preview.LiveDayPreviewTest.test_real_faint_does_not_create_sample_inventory) ... ok
+test_two_process_handoff_preserves_id_and_fresh (test_inventory_v12.InventoryV12.test_two_process_handoff_preserves_id_and_fresh) ... ok
+test_day_registry_continues_after_handoff_and_resets_hold (test_inventory_v12.InventoryV12.test_day_registry_continues_after_handoff_and_resets_hold) ... ok
+test_day_receives_item_handoff_and_shop_does_not_decay_stock (test_restaurant_stock.RestaurantStockTest.test_day_receives_item_handoff_and_shop_does_not_decay_stock) ... ok
+test_catch_underwater_radius_tie_yield_and_edge (test_gather_collection.GatherCollection.test_catch_underwater_radius_tie_yield_and_edge) ... ok
+test_catch_nearest_and_invalid_phase_or_range (test_gather_collection.GatherCollection.test_catch_nearest_and_invalid_phase_or_range) ... ok
+test_catch_cooldown_available_at_t_plus_l (test_gather_collection.GatherCollection.test_catch_cooldown_available_at_t_plus_l) ... ok
+test_fish_hold_full_never_takes_partial_or_fallback (test_gather_collection.GatherCollection.test_fish_hold_full_never_takes_partial_or_fallback) ... ok
+test_bat_ca_tao_moi_ca_the_co_id_rieng (test_gather_freshness.GatherFreshness.test_bat_ca_tao_moi_ca_the_co_id_rieng) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.604s
+
+OK

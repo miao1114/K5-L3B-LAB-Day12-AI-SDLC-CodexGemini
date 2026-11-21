@@ -1,31 +1,57 @@
-# Ma trận truy vết Phase 3
+# Phase 3 — Verification Matrix (MẪU CHƯA CHẠY)
 
-## Kho Quán và giữ chỗ P3-03
+> **Không được đổi `NOT RUN` thành PASS khi chưa thực thi và lưu proof tại commit bàn giao.**
+> Repo/branch/commit/tag: _điền sau khi có build tích hợp_  
+> Contract: v1.2 · TICKET-03.  
+> Ngày/giờ chạy, môi trường: _điền thực tế_.
 
-Sau khi ghép kho v1.2 và hao tươi Gather, **201/201 test đạt**. Headless bàn giao kho qua file và kết thúc trọn một ngày. [Lệnh và kết quả](../proof/phase-3/quan-stock.md).
+| AC kiểm tra | Người | Trạng thái | Test/CLI đã chạy | Proof path | Ghi chú |
+|---|---|---|---|---|---|
+| Contract v1.2 và config freshness | P3-02 | NOT RUN | — | — | — |
+| Kho items[] và validation exit 2 | P3-02 | NOT RUN | — | — | — |
+| ID xuyên pha/Ngày | P3-02 | NOT RUN | — | — | — |
+| Atomic inventory-out và faint empty | P3-01/02 | NOT RUN | — | — | — |
+| Gather decay/spoiled/LIFO | P3-01 | NOT RUN | — | — | — |
+| Quan decay/spoiled/re-reserve | P3-03 | NOT RUN | — | — | — |
+| Cook price / consumed IDs / event | P3-04 | NOT RUN | — | — | — |
+| Tip/payment/2 stoves/4 tables | P3-04 | NOT RUN | — | — | — |
+| Smoke file Gather → Quan | Cả nhóm | NOT RUN | — | — | — |
+| Smoke Day chuyển pha và nhiều Ngày | P3-02/03/04 | NOT RUN | — | — | — |
+| UI freshness/spoiled local | P3-05 | NOT RUN | — | — | — |
+| Regression P1/P2 còn hiệu lực | Cả nhóm | NOT RUN | — | — | — |
+| CHANGELOG/ADR/retro/log AI | Cả nhóm | NOT RUN | — | — | — |
+| Tag `phase-3` cùng commit đã test | Người được giao release | NOT RUN | — | — | — |
 
-| Yêu cầu P3-03 | Cách kiểm chứng | Bằng chứng | Kết quả |
-|---|---|---|---|
-| Ticket-03 §1 · kho theo ID | Headless Quán v1.2 nạp mảng cá thể gồm hàng ươn, giữ độ tươi khi nạp và từ chối kho đếm/fixture sai | [Kiểm chứng P3-03](../proof/phase-3/quan-stock.md) | Đạt ở Quán |
-| Ticket-03 §1 · hao tươi và giữ chỗ | Kiểm ngưỡng đúng tick, thứ tự ID, pause, giữ cá thể tươi nhất, claim trùng và thứ tự giữ lại | [Test](../../tests/test_restaurant_stock.py) | Đạt |
-| Ticket-03 §1 · định giá theo độ tươi | Kiểm thứ tự `spoiled` → `dish_ready` → `cook_started`, cá thể bếp tiêu và giá đã chốt | [Kiểm chứng P3-03](../proof/phase-3/quan-stock.md) | Đạt |
-| Ticket-03 §1 · bàn giao Gather → Quán → Shop | Chạy Gather và Quán thật, đối chiếu tick chuyển pha và tồn cá thể trong Shop | [Test](../../tests/test_restaurant_stock.py) | Đạt với adapter P3-02 |
+## Lệnh mẫu (cần xác nhận entrypoint repo thực tế)
 
-## Schema kho P3-02
+```bash
+PYTHONPATH=tests:. python3 -m unittest discover -s tests -v
 
-PowerShell: `$env:PYTHONPATH="tests;."; python -m unittest discover -s tests` — **152/152 test đạt, exit 0**. [Output thật](../proof/phase-3/inventory-v12-test.txt).
+# Fixture ngưỡng fresh 30, không input: spoiled ở tick 1
+python3 -m chonoi.headless --mode gather --seed 42 \
+  --scenario tests/fixtures/phase3/gather_threshold.json \
+  --ticks 1 --out docs/proof/phase-3/gather_threshold.jsonl
 
-| AC | Test / bằng chứng | Trạng thái |
-|---|---|---|
-| AC-P3-I2-01 | `test_id_registry_observes_and_never_reuses`, `test_dropped_item_ids_are_not_reused_by_next_catch`, `test_day_registry_continues_after_handoff_and_resets_hold` | Đạt |
-| AC-P3-I2-02 | `test_schema_accepts_six_kinds_and_clones`, `test_schema_rejects_old_counts_and_invalid_fields`, `test_headless_rejects_bad_file_before_output_with_exit_two` | Đạt |
-| AC-P3-I2-03 | `test_atomic_write_replaces_file_and_cleans_temporary` và hồi quy `tick_limit` trong `test_gather_collection.py` | Đạt |
-| AC-P3-I2-04 | `test_scenario_validates_individual_hold_and_stock`, các ca CLI sai schema trả 2 trước output | Đạt |
-| AC-P3-I2-05 | `test_two_process_handoff_preserves_id_and_fresh`, `test_day_registry_continues_after_handoff_and_resets_hold` | Đạt ở adapter P3-02; hao tươi theo tick và chọn cá thể khi nấu thuộc P3-01/P3-03. |
-| AC-P3-I2-06 | `game.contract.json` v1.2; toàn suite 152 test, gồm hồi quy Phase 1/2 | Đạt |
+# Ghi file kho từ dock đầu bước
+python3 -m chonoi.headless --mode gather --seed 42 \
+  --scenario tests/fixtures/phase3/gather_dock.json \
+  --inputs tests/fixtures/phase3/gather_dock_inputs.json \
+  --ticks 1 --out docs/proof/phase-3/gather_dock.jsonl \
+  --inventory-out docs/proof/phase-3/stock.json
 
-Các kỳ vọng test Phase 1/2 liên quan file kho, `gather_end.inventory` và snapshot Day đã đổi từ object đếm sang mảng cá thể theo Test Contract v1.2; luật di chuyển, cá, quái và bếp vẫn được kiểm trong toàn suite. Kho đếm chỉ còn là adapter nội bộ cho Quán và fixture cũ, không được nhận qua `--inventory`.
+# Quán tick 0 chỉ dựng fixture, kiểm stock không bị hao tươi trong bàn giao
+python3 -m chonoi.headless --mode quan --seed 42 \
+  --inventory docs/proof/phase-3/stock.json \
+  --ticks 0 --out docs/proof/phase-3/quan_tick0.jsonl
+```
 
-## P3-05 · UI/UX & Verification
+**Lưu ý:** Các lệnh trên là hướng dẫn chạy, **không phải bằng chứng đã chạy**. Không đính log giả. Kiểm chứng `day` chỉ khi P3-02 tích hợp xong, với lệnh phù hợp README và `--mode day --days 1`.
 
-HUD Gather, Quán và màn bàn giao hiển thị độ tươi theo ID, đánh dấu hàng ươn dưới 30. Kết quả Chrome, smoke Gather → file kho → Quán và Day Mode nằm trong [báo cáo P3-05](phase-3-p3-05.md).
+## Kết quả/biên bản
+
+- Test tổng: _NOT RUN_
+- Smoke file: _NOT RUN_
+- Smoke day: _NOT RUN_
+- Regression: _NOT RUN_
+- Phần chưa đạt: _chưa xác định_
+- Quyết định release: _chưa xác định_

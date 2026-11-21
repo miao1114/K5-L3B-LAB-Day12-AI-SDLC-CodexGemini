@@ -1,0 +1,36 @@
+{
+  "mode": "day",
+  "screen": "menu",
+  "day": 1,
+  "days": 5,
+  "live_scenes": true,
+  "paused": false,
+  "can_pause": false,
+  "tick_hz": 60,
+  "events": [],
+  "day_plan": {
+    "day": 1,
+    "dishes": {
+      "ca_loc_nuong_trui": 1,
+      "goi_bong_sung": 1
+    },
+    "ingredients": {
+      "bong_sung": 2,
+      "ca_loc": 1
+    }
+  },
+  "needed": {
+    "bong_sung": 2,
+    "ca_loc": 1
+  },
+  "menu": [
+    {
+      "dish_id": "ca_loc_nuong_trui",
+      "servings": 1
+    },
+    {
+      "dish_id": "goi_bong_sung",
+      "servings": 1
+    }
+  ]
+}

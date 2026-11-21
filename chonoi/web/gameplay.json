@@ -1,0 +1,10 @@
+{
+  "customer_interval_s": 5,
+  "menu_unlocks": [
+    {"day": 1, "dishes": ["goi_bong_sung", "ca_loc_nuong_trui"]},
+    {"day": 2, "dishes": ["ca_keo_nuong"]},
+    {"day": 3, "dishes": ["canh_chua_ca_loc"]},
+    {"day": 4, "dishes": ["lau_ca_linh_dien_dien"]},
+    {"day": 5, "dishes": ["lau_mam"]}
+  ]
+}

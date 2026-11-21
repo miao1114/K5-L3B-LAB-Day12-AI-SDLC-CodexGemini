@@ -27,6 +27,39 @@ Mở địa chỉ localhost được in ra để chơi. Đổi `--mode gather` t
 PYTHONPATH=tests:. python3 -m unittest discover -s tests -v
 ```
 
+Chơi web nhiều ngày với Gather/Quán thật và nhiệm vụ nguyên liệu từ Ngày 1:
+
+```bash
+python3 docs/proof/phase-2/day_fixture.py --real-scenes --days 5 --port 8783
+```
+
+Mở `http://127.0.0.1:8783/`, chọn **Chơi → Ra bến**. HUD bên trái lấy mục tiêu từ backend,
+đếm cá thể còn tươi trong giỏ và hiện riêng số hàng ươn. Có thể thêm `--scenario scenario.json`
+để thử `day.day_plan` và `gather.hold` tùy chỉnh. Bản web mở rộng tái sử dụng DaySim,
+bao gồm Shop thật, pause, tiền/uy tín và nâng cấp xuyên ngày. Quán tự đóng khi không
+còn công thức/đơn/món đang xử lý hoặc khách đang ăn; nguyên liệu dư vẫn được thống kê.
+Cá linh bắt theo đàn tạo 3 cá thể nhưng dùng 1 ô, rơi hàng theo cả ô LIFO. Cá khác/cây
+vẫn dùng từng ô. File kho giữ schema cá thể v1.2; nhiệm vụ đếm cá thật, không đếm ô.
+Kế hoạch web `chonoi/web/day-plan.json` tăng 2 → 3 → 4 → 5 → 6 suất, dùng 3/5/7/9/12 ô;
+Ngày 1 cần 1 cá lóc và 2 bông súng. Nhịp khách lấy từ `chonoi/web/gameplay.json`.
+`--scenario` tường minh được ưu tiên. `--contract-plan` chọn adapter preview cũ với
+mục tiêu chuẩn và tắt các luật mở rộng (Shop chưa nối trong adapter cũ).
+Headless `chonoi.headless --mode day` luôn giữ preset và luật Test Contract chuẩn.
+Món mở theo `chonoi/web/gameplay.json`: Ngày 1 gỏi bông súng/cá lóc nướng,
+Ngày 2 thêm cá kèo nướng, Ngày 3 canh chua, Ngày 4 lẩu cá linh, Ngày 5 lẩu mắm.
+Gather chỉ sinh nguyên liệu cho menu đã mở, vẫn đủ 8 đàn đầu ca/trần 12,
+360 tick/lượt, 6 điểm cây hồi 1200 tick. Quán cho gọi mọi món đã mở có đủ hàng,
+kể cả món không nằm trong kế hoạch thu thập. Xem [báo cáo unlock/spawn](docs/notes/Menu-Unlock-Resource-Spawn.md).
+Kiểm chứng Chrome: `python3 tools/verify_daily_quest_browser.py` (cần Playwright và Chrome).
+Xem [báo cáo sửa nhiệm vụ](docs/notes/Day1-DailyQuest-UI-Fix.md).
+
+Kiểm chứng nâng cấp gameplay: `python3 tools/verify_interactive_progression.py`
+(thu thập/phục vụ thật 5 ngày, replay deterministic) rồi
+`python3 tools/verify_interactive_browser.py` (cần Playwright + Chrome).
+Xem [Fish Stack, Auto End và tiến trình 5 ngày](docs/notes/Fish-Stack-Auto-End-Day-Progression.md).
+Kiểm chứng riêng unlock/spawn: `python3 -m unittest discover -s tests -p test_interactive_menu.py -v`
+và `python3 tools/verify_menu_unlock_browser.py`.
+
 Trạng thái kiểm chứng Phase 1 hiện tại: 46/47 test đạt; test ngất còn chờ tích hợp Lát 1 (xem [`docs/verification/phase-1.md`](docs/verification/phase-1.md)). Game cần chế độ **headless** theo Test Contract (`python3 -m chonoi.headless --mode gather|quan …`) để được chạy và chấm tự động. **Công nghệ không ràng buộc**: khung Python trong `chonoi/` chỉ là gợi ý, chi tiết ở [`docs/STARTER.md`](docs/STARTER.md).
 
 ### Buổi sáng — Gather

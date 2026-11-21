@@ -168,21 +168,7 @@ class GatherSim:
                         self.hold_items.clear()
                         self._finish("fainted", events)
                         return events
-        before_items = list(self.hold_items)
-        self.hp, self.invuln_ticks, monster_events, fainted = step_monsters(
-            self.monsters, self.t, self.pos, self.hp, self.invuln_ticks,
-            self.hold, tick_hz=self.tick_hz)
-        del self.hold_items[len(self.hold):]  # monster_hit bỏ đúng phần đuôi LIFO
-        # lost là object cá thể theo thứ tự bỏ (LIFO). Số bỏ = số kind monster_hit đã pop;
-        # faint liệt kê phần còn lại trước khi giỏ bị xóa.
-        n_hit = next((len(data["lost"]) for name, data in monster_events if name == "monster_hit"), 0)
-        popped = before_items[len(before_items) - n_hit:]
-        remaining = before_items[:len(before_items) - n_hit]
-        for name, data in monster_events:
-            if name == "monster_hit":
-                data["lost"] = clone_items(list(reversed(popped)))
-            elif name == "faint":
-                data["lost"] = clone_items(list(reversed(remaining)))
+        monster_events, fainted = self._apply_monsters()
         events.extend(monster_events)
         if fainted:
             self._finish("fainted", events)
@@ -200,14 +186,15 @@ class GatherSim:
                 if candidates:
                     node = min(candidates, key=lambda n: math.dist(self.pos, n["pos"]))
                     amount = int(self.t["node_yield"])
-                    free = self.t["hold_capacity"] - len(self.hold)
-                    if free < amount:
+                    free, required = self._collection_slots(node["kind"], amount, "gather")
+                    if free < required:
                         events.append(("hold_full", {"action": "gather", "node_id": node["id"],
-                                                     "required": amount, "free": free}))
+                                                     "required": required, "free": free}))
                     else:
                         self.hold.extend([node["kind"]] * amount)
                         self.hold_items.extend({"id": self.ids.next_item_id(), "kind": node["kind"],
                                                 "fresh": self.fresh_initial} for _ in range(amount))
+                        self._collected_items(self.hold_items[-amount:], "gather")
                         node["regrow_ticks"] = int(round(self.t["regrow_s"] * TICK))
                         events.append(("gather", {"node_id": node["id"], "kind": node["kind"],
                                                   "amount": amount}))
@@ -220,14 +207,15 @@ class GatherSim:
                 if candidates:
                     fish = min(candidates, key=lambda f: math.dist(self.pos, f["pos"]))
                     amount = int(self.t["fish_yield"][fish["kind"]])
-                    free = self.t["hold_capacity"] - len(self.hold)
-                    if free < amount:
+                    free, required = self._collection_slots(fish["kind"], amount, "catch")
+                    if free < required:
                         events.append(("hold_full", {"action": "catch", "fish_id": fish["id"],
-                                                     "required": amount, "free": free}))
+                                                     "required": required, "free": free}))
                     else:
                         self.hold.extend([fish["kind"]] * amount)
                         self.hold_items.extend({"id": self.ids.next_item_id(), "kind": fish["kind"],
                                                 "fresh": self.fresh_initial} for _ in range(amount))
+                        self._collected_items(self.hold_items[-amount:], "catch")
                         self.fish.remove(fish)
                         self.catch_cd_ticks = int(round(self.t["catch_cooldown_s"] * TICK))
                         events.append(("fish_caught", {"fish_id": fish["id"], "kind": fish["kind"],
@@ -246,6 +234,29 @@ class GatherSim:
         return events
 
     # --- tiện ích ---------------------------------------------------------------
+    def _collection_slots(self, kind, amount, action):
+        """Standard contract: every physical ingredient occupies one slot."""
+        return self.t["hold_capacity"] - len(self.hold), amount
+
+    def _collected_items(self, items, action):
+        """Optional interactive basket hook; no additional state in standard mode."""
+
+    def _apply_monsters(self):
+        before_items = list(self.hold_items)
+        self.hp, self.invuln_ticks, events, fainted = step_monsters(
+            self.monsters, self.t, self.pos, self.hp, self.invuln_ticks,
+            self.hold, tick_hz=self.tick_hz)
+        del self.hold_items[len(self.hold):]
+        n_hit = next((len(data["lost"]) for name, data in events if name == "monster_hit"), 0)
+        popped = before_items[len(before_items) - n_hit:]
+        remaining = before_items[:len(before_items) - n_hit]
+        for name, data in events:
+            if name == "monster_hit":
+                data["lost"] = clone_items(list(reversed(popped)))
+            elif name == "faint":
+                data["lost"] = clone_items(list(reversed(remaining)))
+        return events, fainted
+
     def _at_surface(self) -> bool:
         return self.pos[1] <= self.t["surface_depth"]
 

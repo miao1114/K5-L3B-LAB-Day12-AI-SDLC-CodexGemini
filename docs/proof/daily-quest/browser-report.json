@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Day 1: default targets, real Space catch and E harvest, no HUD overlap PASS",
+    "Prefilled basket, completion without reward/transition, single notice, loss reverses completion PASS",
+    "Custom plan, exact fresh=30 before/after real decay, spoiled items retained PASS",
+    "Days 2–5: backend plans and clean baskets; ca_linh school adds three PASS",
+    "Standalone free collection and Chrome console PASS"
+  ],
+  "console_errors": [],
+  "fixtures": "Clock/positions, seeded inventory and physical item loss; browser actions use real HTTP and Gather.",
+  "viewport": "1280x720",
+  "url": "http://127.0.0.1:60763/"
+}

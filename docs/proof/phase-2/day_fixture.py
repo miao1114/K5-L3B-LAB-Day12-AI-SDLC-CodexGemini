@@ -11,9 +11,12 @@ from time import monotonic
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 from chonoi.contract import load_contract
+from chonoi.day_config import day_plans
+from chonoi.scenario import load_scenario
 from chonoi.inputs import InputState, LiveInputs, normalize
 from chonoi.inventory import items_to_counts
 from chonoi.live import LiveGame, read_web_art
+from chonoi.interactive_web import InteractiveDayWeb
 from chonoi.runner import build_sim
 
 TUNING = load_contract()["tuning"]
@@ -173,7 +176,9 @@ class LiveScenesPreview(Preview):
     """Local day screen flow backed by real Gather and Quán simulations."""
     live_scenes = True
 
-    def __init__(self, days, faint):
+    def __init__(self, days, faint, scenario=None):
+        self.scenario = scenario or {}
+        self.plans = day_plans(TUNING, self.scenario.get("day", {}).get("day_plan", ()))
         self.inventory = []
         self.gather_reason = None
         self.results = []
@@ -185,11 +190,18 @@ class LiveScenesPreview(Preview):
         self.game = None
         self.served, self.left, self.tips = 0, 0, 0
         if screen == "gather":
-            scenario = {"player": {"pos": [50, 10], "hp": 1, "oxygen_ticks": 0, "zero_oxy_ticks": 59}} if self.faint else {}
+            scenario = dict(self.scenario.get("gather", {}))
+            if self.day != 1:
+                scenario.pop("hold", None)
+            if self.faint:
+                scenario["player"] = {"pos": [50, 10], "hp": 1, "oxygen_ticks": 0, "zero_oxy_ticks": 59}
             self.game = LiveGame(screen, TUNING, scenario, self.day)
         elif screen == "quan":
-            scenario = {"reputation": self.results[-1]["reputation"]} if self.results else {}
-            self.game = LiveGame(screen, TUNING, scenario, self.day, inventory=self.inventory)
+            scenario = dict(self.scenario.get("quan", {}))
+            if self.results:
+                scenario["reputation"] = self.results[-1]["reputation"]
+            tuning = {**TUNING, "menu": {dish: TUNING["menu"][dish] for dish in self.plans[self.day]["dishes"]}}
+            self.game = LiveGame(screen, tuning, scenario, self.day, inventory=self.inventory)
 
     def update_scene(self):
         game = self.game
@@ -231,6 +243,10 @@ class LiveScenesPreview(Preview):
         return True
 
     def action(self, action, data):
+        if action == "start" and self.screen == "menu":
+            self.__init__(self.days, self.faint, self.scenario)
+            self.set_screen("day_intro")
+            return True
         if action == "buy" or (action == "pause" and self.screen not in SPAWN):
             return False
         self.update_scene()
@@ -248,17 +264,18 @@ class LiveScenesPreview(Preview):
         self.update_scene()
         state = dict(mode="day", screen=self.screen, day=self.day, days=self.days, live_scenes=True,
                      paused=self.paused, can_pause=self.game is not None, tick_hz=TUNING["tick_hz"], events=[])
+        plan = self.plans[self.day]
+        state.update(day_plan=plan, needed=plan["ingredients"],
+                     menu=[{"dish_id": dish, "servings": count} for dish, count in plan["dishes"].items()])
         if self.game:
             snapshot = json.loads(self.game.state_json())
             snapshot["money"] += self.money
             state.update(snapshot=snapshot, events=snapshot["events"])
-        elif self.screen == "day_intro":
-            state["menu"] = list(TUNING["menu"])
         elif self.screen == "evening_intro":
             threshold = TUNING["inventory"]["spoil_threshold"]
             available = items_to_counts([item for item in self.inventory if item["fresh"] >= threshold])
             state.update(inventory=self.inventory, spoil_threshold=threshold, gather_reason=self.gather_reason,
-                         cookable=[name for name, dish in TUNING["menu"].items()
+                         cookable=[name for name, dish in TUNING["menu"].items() if name in plan["dishes"]
                                    if all(available.get(k, 0) >= v for k, v in dish["recipe"].items())])
         elif self.screen in ("day_result", "summary"):
             result = self.results[-1].copy()
@@ -277,9 +294,31 @@ def main():
     parser.add_argument("--port", type=int, default=8782)
     parser.add_argument("--faint", action="store_true")
     parser.add_argument("--real-scenes", action="store_true", help="Use the real Gather and Quán simulations")
+    parser.add_argument("--scenario", help="Scenario JSON for real scenes, including day.day_plan overrides")
+    parser.add_argument("--contract-plan", action="store_true", help="Use the old preview with official targets, without gameplay extensions")
     args = parser.parse_args()
     preview_type = LiveScenesPreview if args.real_scenes else Preview
-    preview, lock = preview_type(args.days, args.faint), Lock()
+    if args.scenario and not args.real_scenes:
+        parser.error("--scenario requires --real-scenes")
+    scenario_path = args.scenario
+    if args.real_scenes and not args.contract_plan and not scenario_path:
+        scenario_path = str(ROOT / "chonoi/web/day-plan.json")
+    options = {"scenario": load_scenario(scenario_path, "day", TUNING)} if scenario_path else {}
+    if args.real_scenes and not args.contract_plan:
+        config = json.loads((ROOT / "chonoi/web/gameplay.json").read_text(encoding="utf-8"))
+        preview = InteractiveDayWeb(args.days, args.faint, tuning=TUNING, config=config, **options)
+    else:
+        preview = preview_type(args.days, args.faint, **options)
+    with create_server(preview, args.port) as server:
+        label = "Gameplay mở rộng 5 ngày" if isinstance(preview, InteractiveDayWeb) else (
+            "Gather/Quán thật trong UI Phase 2" if args.real_scenes else "Fixture Phase 2")
+        print(f"{label} tại http://127.0.0.1:{server.server_port}/", flush=True)
+        server.serve_forever()
+
+
+def create_server(preview, port=0):
+    """Share the actual HTTP adapter with browser verification; no test-only endpoints."""
+    lock = Lock()
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -292,7 +331,11 @@ def main():
             self.send_header("Content-Length", str(len(payload)))
             self.send_header("Cache-Control", "public, max-age=300" if kind == "image/webp" else "no-store")
             self.end_headers()
-            self.wfile.write(payload)
+            try:
+                self.wfile.write(payload)
+            except ConnectionError:
+                # Poll requests may be cancelled when the browser navigates/closes.
+                pass
 
         def do_GET(self):
             path = self.path.split("?", 1)[0]
@@ -328,10 +371,9 @@ def main():
                 else:
                     self.reply(404, {"ok": False})
 
-    with ThreadingHTTPServer(("127.0.0.1", args.port), Handler) as server:
-        label = "Gather/Quán thật trong UI Phase 2" if args.real_scenes else "Fixture Phase 2"
-        print(f"{label} tại http://127.0.0.1:{server.server_port}/", flush=True)
-        server.serve_forever()
+    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    server.preview_lock = lock
+    return server
 
 
 if __name__ == "__main__":

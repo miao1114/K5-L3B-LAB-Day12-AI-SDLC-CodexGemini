@@ -1,6 +1,9 @@
 """Exercise the Day web adapter with the real Phase 1 engines."""
 from pathlib import Path
 from runpy import run_path
+from chonoi.sim.day import DaySim
+from chonoi.contract import load_contract
+from chonoi.scenario import load_scenario
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,3 +104,55 @@ class LiveDayPreviewTest(unittest.TestCase):
         self.assertEqual(state["cookable"], [])
         inventory[0]["fresh"] = 30
         self.assertEqual(preview.snapshot()["cookable"], ["ca_loc_nuong_trui"])
+
+    def test_all_day_targets_match_real_day_sim_and_reset_basket(self):
+        preview = Preview(5, False)
+        tuning = load_contract()["tuning"]
+        day_sim = DaySim(tuning, {}, 1, 5)
+        for day in range(1, 6):
+            with self.subTest(day=day):
+                day_sim.day = day
+                day_sim._start_day()
+                preview.day = day
+                preview.set_screen("day_intro")
+                intro = preview.snapshot()
+                self.assertEqual(intro["day_plan"], day_sim.snapshot()["day_plan"])
+                self.assertEqual(intro["needed"], tuning["day_plan"][day - 1]["ingredients"])
+                self.assertEqual({row["dish_id"]: row["servings"] for row in intro["menu"]},
+                                 intro["day_plan"]["dishes"])
+                preview.action("continue", {})
+                gather = preview.snapshot()
+                self.assertEqual(gather["day_plan"], intro["day_plan"])
+                self.assertEqual(gather["snapshot"]["hold"], [])
+                preview.inventory = [{"id": "I99", "kind": "ca_linh", "fresh": 90}]
+                preview.set_screen("quan")
+                self.assertEqual(set(preview.game.tuning["menu"]), set(intro["day_plan"]["dishes"]))
+
+    def test_custom_plan_and_prefilled_items_survive_start_and_phase_change(self):
+        items = [{"id": "I7", "kind": "ca_keo", "fresh": 30},
+                 {"id": "I8", "kind": "ca_keo", "fresh": 29.99}]
+        scenario = {"day": {"day_plan": [{"day": 1, "dishes": {"ca_keo_nuong": 1}}]},
+                    "gather": {"hold": items}}
+        preview = Preview(5, False, scenario)
+        preview.action("start", {})
+        self.assertEqual(preview.snapshot()["needed"], {"ca_keo": 2})
+        preview.action("continue", {})
+        self.assertEqual(preview.snapshot()["snapshot"]["hold"], items)
+        self.assertEqual(preview.snapshot()["day_plan"]["ingredients"], {"ca_keo": 2})
+        preview.day = 2
+        preview.set_screen("gather")
+        self.assertEqual(preview.snapshot()["snapshot"]["hold"], [])
+
+    def test_web_progression_preserves_recipes_and_standard_contract(self):
+        tuning = load_contract()["tuning"]
+        scenario = load_scenario(ROOT / "chonoi/web/day-plan.json", "day", tuning)
+        preview = Preview(5, False, scenario)
+        preview.action("start", {})
+        self.assertEqual(preview.snapshot()["needed"], {"ca_loc": 1, "bong_sung": 2})
+        for day in range(1, 6):
+            preview.day = day
+            preview.set_screen("day_intro")
+            state = preview.snapshot()
+            self.assertEqual(sum(state["day_plan"]["dishes"].values()), day + 1)
+            self.assertEqual(state["needed"]["bong_sung"], 2)
+        self.assertEqual(tuning["day_plan"][0]["ingredients"], {"ca_loc": 3, "bong_sung": 6})

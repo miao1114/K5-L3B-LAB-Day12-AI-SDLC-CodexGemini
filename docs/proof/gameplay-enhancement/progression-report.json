@@ -1,0 +1,237 @@
+{
+  "seed": 1,
+  "days_completed": 5,
+  "gather_targets": {
+    "1": {
+      "tick": 1095,
+      "seconds": 18.25,
+      "items": {
+        "ca_loc": 1,
+        "bong_sung": 2
+      },
+      "slots": 3
+    },
+    "2": {
+      "tick": 2507,
+      "seconds": 41.78333333333333,
+      "items": {
+        "ca_loc": 2,
+        "bong_sung": 2
+      },
+      "slots": 4
+    },
+    "3": {
+      "tick": 1653,
+      "seconds": 27.55,
+      "items": {
+        "bong_dien_dien": 1,
+        "bong_sung": 2,
+        "ca_linh": 3,
+        "ca_loc": 2
+      },
+      "slots": 6
+    },
+    "4": {
+      "tick": 2144,
+      "seconds": 35.733333333333334,
+      "items": {
+        "bong_dien_dien": 3,
+        "ca_linh": 6,
+        "ca_loc": 2,
+        "bong_sung": 2
+      },
+      "slots": 9
+    },
+    "5": {
+      "tick": 2648,
+      "seconds": 44.13333333333333,
+      "items": {
+        "bong_dien_dien": 3,
+        "ca_loc": 2,
+        "ca_linh": 6,
+        "bong_sung": 2,
+        "ca_keo": 2
+      },
+      "slots": 11
+    }
+  },
+  "results": [
+    {
+      "day": 1,
+      "caught": {
+        "ca_loc": 1
+      },
+      "schools": {
+        "ca_loc": 1
+      },
+      "harvested": {
+        "bong_sung": 2
+      },
+      "brought": {
+        "ca_loc": 1,
+        "bong_sung": 2
+      },
+      "used": {
+        "ca_loc": 1,
+        "bong_sung": 2
+      },
+      "remaining": {},
+      "spoiled": {},
+      "served": 2,
+      "left": 0,
+      "sold": 2,
+      "earned": 104,
+      "tips": 17,
+      "money": 104,
+      "reputation": 3.4,
+      "reason": "inventory_exhausted"
+    },
+    {
+      "day": 2,
+      "caught": {
+        "ca_loc": 2
+      },
+      "schools": {
+        "ca_loc": 2
+      },
+      "harvested": {
+        "bong_sung": 2
+      },
+      "brought": {
+        "ca_loc": 2,
+        "bong_sung": 2
+      },
+      "used": {
+        "bong_sung": 2,
+        "ca_loc": 2
+      },
+      "remaining": {},
+      "spoiled": {},
+      "served": 3,
+      "left": 0,
+      "sold": 3,
+      "earned": 161,
+      "tips": 26,
+      "money": 265,
+      "reputation": 4.0,
+      "reason": "inventory_exhausted"
+    },
+    {
+      "day": 3,
+      "caught": {
+        "ca_linh": 3,
+        "ca_loc": 2
+      },
+      "schools": {
+        "ca_linh": 1,
+        "ca_loc": 2
+      },
+      "harvested": {
+        "bong_dien_dien": 1,
+        "bong_sung": 2
+      },
+      "brought": {
+        "bong_dien_dien": 1,
+        "bong_sung": 2,
+        "ca_linh": 3,
+        "ca_loc": 2
+      },
+      "used": {
+        "bong_sung": 2,
+        "ca_loc": 2,
+        "bong_dien_dien": 1,
+        "ca_linh": 3
+      },
+      "remaining": {},
+      "spoiled": {},
+      "served": 4,
+      "left": 0,
+      "sold": 4,
+      "earned": 275,
+      "tips": 45,
+      "money": 290,
+      "reputation": 4.8,
+      "reason": "inventory_exhausted"
+    },
+    {
+      "day": 4,
+      "caught": {
+        "ca_linh": 6,
+        "ca_loc": 2
+      },
+      "schools": {
+        "ca_linh": 2,
+        "ca_loc": 2
+      },
+      "harvested": {
+        "bong_dien_dien": 3,
+        "bong_sung": 2
+      },
+      "brought": {
+        "bong_dien_dien": 3,
+        "ca_linh": 6,
+        "ca_loc": 2,
+        "bong_sung": 2
+      },
+      "used": {
+        "bong_dien_dien": 3,
+        "ca_loc": 2,
+        "ca_linh": 6,
+        "bong_sung": 2
+      },
+      "remaining": {},
+      "spoiled": {},
+      "served": 5,
+      "left": 0,
+      "sold": 5,
+      "earned": 423,
+      "tips": 69,
+      "money": 513,
+      "reputation": 5.0,
+      "reason": "inventory_exhausted"
+    },
+    {
+      "day": 5,
+      "caught": {
+        "ca_loc": 2,
+        "ca_linh": 6,
+        "ca_keo": 2
+      },
+      "schools": {
+        "ca_loc": 2,
+        "ca_linh": 2,
+        "ca_keo": 1
+      },
+      "harvested": {
+        "bong_dien_dien": 3,
+        "bong_sung": 2
+      },
+      "brought": {
+        "bong_dien_dien": 3,
+        "ca_loc": 2,
+        "ca_linh": 6,
+        "bong_sung": 2,
+        "ca_keo": 2
+      },
+      "used": {
+        "bong_sung": 2,
+        "bong_dien_dien": 3,
+        "ca_linh": 6,
+        "ca_loc": 2,
+        "ca_keo": 2
+      },
+      "remaining": {},
+      "spoiled": {},
+      "served": 6,
+      "left": 0,
+      "sold": 6,
+      "earned": 477,
+      "tips": 77,
+      "money": 490,
+      "reputation": 5.0,
+      "reason": "inventory_exhausted"
+    }
+  ],
+  "ticks": 25160,
+  "fixtures": "Default spawns, real movement/oxygen/decay/monsters; no teleport or injected inventory."
+}

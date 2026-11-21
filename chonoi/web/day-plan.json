@@ -1,0 +1,11 @@
+{
+  "day": {
+    "day_plan": [
+      {"day": 1, "dishes": {"ca_loc_nuong_trui": 1, "goi_bong_sung": 1}},
+      {"day": 2, "dishes": {"ca_loc_nuong_trui": 1, "goi_bong_sung": 1, "ca_keo_nuong": 1}},
+      {"day": 3, "dishes": {"ca_loc_nuong_trui": 1, "goi_bong_sung": 1, "ca_keo_nuong": 1, "canh_chua_ca_loc": 1}},
+      {"day": 4, "dishes": {"ca_loc_nuong_trui": 1, "goi_bong_sung": 1, "ca_keo_nuong": 1, "canh_chua_ca_loc": 1, "lau_ca_linh_dien_dien": 1}},
+      {"day": 5, "dishes": {"ca_loc_nuong_trui": 3, "goi_bong_sung": 1, "lau_ca_linh_dien_dien": 1, "lau_mam": 1}}
+    ]
+  }
+}

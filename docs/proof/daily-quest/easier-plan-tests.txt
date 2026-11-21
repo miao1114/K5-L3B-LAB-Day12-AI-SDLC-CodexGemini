@@ -1,0 +1,23 @@
+test_all_day_targets_match_real_day_sim_and_reset_basket (test_phase2_live_preview.LiveDayPreviewTest.test_all_day_targets_match_real_day_sim_and_reset_basket) ... ok
+test_custom_plan_and_prefilled_items_survive_start_and_phase_change (test_phase2_live_preview.LiveDayPreviewTest.test_custom_plan_and_prefilled_items_survive_start_and_phase_change) ... ok
+test_easier_web_plan_reduces_servings_and_preserves_recipes_and_contract (test_phase2_live_preview.LiveDayPreviewTest.test_easier_web_plan_reduces_servings_and_preserves_recipes_and_contract) ... ok
+test_evening_preview_excludes_spoiled_from_cookable_without_discarding_it (test_phase2_live_preview.LiveDayPreviewTest.test_evening_preview_excludes_spoiled_from_cookable_without_discarding_it) ... ok
+test_real_catch_transfers_stock_and_real_service_is_paid (test_phase2_live_preview.LiveDayPreviewTest.test_real_catch_transfers_stock_and_real_service_is_paid) ... ok
+test_real_faint_does_not_create_sample_inventory (test_phase2_live_preview.LiveDayPreviewTest.test_real_faint_does_not_create_sample_inventory) ... ok
+test_buy_precedes_shop_done_on_final_tick (test_day.DayContractTest.test_buy_precedes_shop_done_on_final_tick) ... ok
+test_day_carries_actual_kitchen_pay_and_starts_second_day_with_full_capacity (test_day.DayContractTest.test_day_carries_actual_kitchen_pay_and_starts_second_day_with_full_capacity) ... ok
+test_day_plan_filters_orders_but_serving_target_does_not_cap_them (test_day.DayContractTest.test_day_plan_filters_orders_but_serving_target_does_not_cap_them) ... ok
+test_day_rejects_invalid_args_fixtures_and_late_reservations (test_day.DayContractTest.test_day_rejects_invalid_args_fixtures_and_late_reservations) ... ok
+test_faint_opens_quan_with_empty_stock_on_same_tick (test_day.DayContractTest.test_faint_opens_quan_with_empty_stock_on_same_tick) ... ok
+test_five_short_days_publish_each_standard_plan_and_stay_deterministic (test_day.DayContractTest.test_five_short_days_publish_each_standard_plan_and_stay_deterministic) ... ok
+test_gather_kitchen_and_shop_run_together (test_day.DayContractTest.test_gather_kitchen_and_shop_run_together) ... ok
+test_one_full_day_stops_at_shop_timeout_with_boundary_snapshots (test_day.DayContractTest.test_one_full_day_stops_at_shop_timeout_with_boundary_snapshots) ... ok
+test_pause_freezes_gather_and_shop_without_replaying_actions (test_day.DayContractTest.test_pause_freezes_gather_and_shop_without_replaying_actions) ... ok
+test_pause_freezes_quan_schedule_and_timer (test_day.DayContractTest.test_pause_freezes_quan_schedule_and_timer) ... ok
+test_quan_standalone_can_sell_dish_outside_day_one_plan (test_day.DayContractTest.test_quan_standalone_can_sell_dish_outside_day_one_plan) ... ok
+test_shop_purchases_and_failures_apply_to_next_day (test_day.DayContractTest.test_shop_purchases_and_failures_apply_to_next_day) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 5.029s
+
+OK
