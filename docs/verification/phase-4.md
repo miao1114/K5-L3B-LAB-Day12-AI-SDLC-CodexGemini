@@ -15,7 +15,7 @@ manifest mới chỉ đổi metadata/version/entrypoints, không đổi tuning h
 | AC-P4-07 | High Contrast | p4-c/browser-tests.txt, contrast-ratios.json | PASS |
 | AC-P4-08 | Clone sạch macOS/Linux ≤3 lệnh | README; Windows clone/package test ở p4-d/package-report.json khi tạo; Linux WSL không Python/Git | NOT VERIFIED trên macOS/Linux |
 | AC-P4-09 | Regression | p4-d/regression-tests.txt: 303/304 pass, một test version cũ; sau sửa nhóm Quán 22/22 pass ở restaurant-regression.txt | PASS sau targeted fix; không chạy lại full |
-| AC-P4-10 | ZIP chạy được, đúng commit | tools/package_release.py; release-artifacts/ và package-report.json | Chờ chạy package |
+| AC-P4-10 | ZIP chạy được, đúng commit | ứng viên d251401; p4-d/package-report.json; clone/ZIP mở game và asset trên Chrome | PASS trên Windows, Linux chưa kiểm |
 | AC-P4-11 | Main/tag/Release cùng SHA | chưa đưa ứng viên lên main, chưa tạo tag/Release | NOT VERIFIED |
 | AC-P4-12 | Retro/reflections | retro có ghi nhận thực tế; thiếu hann1holic/thehung1406, file lunaHieu 490 từ, Ánh 214 từ, Hải thiếu phản tư | PARTIAL |
 

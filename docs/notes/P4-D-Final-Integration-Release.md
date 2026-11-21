@@ -2,6 +2,13 @@
 
 **Status: PARTIAL.** Không công bố release khi chưa đạt toàn bộ nghiệm thu.
 
+Ứng viên đã kiểm: **d2514013f52a0f22b6b4e7424a76d67a48bd294d**.
+Package `release-artifacts/quan-an-cho-noi-v1.0.0-d2514013.zip`, SHA256
+`0300300c33be419d0e27380245e5c8a71cdaf82b723aaba12107fa22d475e103`.
+Clone sạch và ZIP giải nén đều PASS HTTP/browser/asset/Chơi→Ra bến trên Windows;
+không lỗi JavaScript. JSON và screenshot trong p4-d. Hồ sơ kiểm package ghi sau
+commit ứng viên, runtime trong ZIP không đổi. Chưa có public Release.
+
 ## A–C. Audit, integration, contract
 
 Nhánh updatelevel, nền 9919bca (origin/main lúc audit). P4-A/B/C có implementation

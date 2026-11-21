@@ -1,0 +1,18 @@
+{
+  "commit": "d2514013f52a0f22b6b4e7424a76d67a48bd294d",
+  "package": "quan-an-cho-noi-v1.0.0-d2514013.zip",
+  "sha256": "0300300c33be419d0e27380245e5c8a71cdaf82b723aaba12107fa22d475e103",
+  "clean_clone": {
+    "status": "PASS",
+    "startup": "Mở trình duyệt tại http://127.0.0.1:50677/  (chế độ day, seed 1). Ctrl+C để dừng.",
+    "os": "win32",
+    "page_errors": []
+  },
+  "package_test": {
+    "status": "PASS",
+    "startup": "Mở trình duyệt tại http://127.0.0.1:50689/  (chế độ day, seed 1). Ctrl+C để dừng.",
+    "os": "win32",
+    "page_errors": []
+  },
+  "macos_linux": "NOT VERIFIED: no Linux Python/Git runtime available"
+}

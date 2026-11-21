@@ -23,7 +23,8 @@ P/Esc pause; Shop mua nâng cấp hoặc rời; High Contrast ở header.
 - Regression: 303/304 lượt full; lỗi version cũ được sửa theo inheritance,
   nhóm Quán chạy lại 22/22 PASS. Không tuyên bố đã chạy full lại.
 - UI: 8 test warnings/accessibility, 3 live và animation/HUD PASS.
-- Package/clone: xem docs/proof/phase-4/p4-d/package-report.json sau chạy verifier.
+- Package/clone: PASS trên Chrome/Windows, ứng viên d251401; xem
+  docs/proof/phase-4/p4-d/package-report.json. Linux/macOS chưa kiểm.
 
 ## Giới hạn
 
