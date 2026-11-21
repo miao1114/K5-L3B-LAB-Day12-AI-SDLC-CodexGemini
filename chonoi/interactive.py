@@ -4,6 +4,7 @@ from copy import deepcopy
 
 from .day_config import gather_tuning
 from .errors import BadInput
+from .extensions import enabled, validate_extensions
 from .interactive_menu import resource_tuning, target_slots, unlocked_menu, web_scenario
 from .inventory import clone_items, items_to_counts
 from .runner import Session
@@ -11,6 +12,14 @@ from .sim.day import DaySim
 from .sim.gather import GatherSim
 from .sim.monsters import step_monsters
 from .sim.quan import QuanSim
+from .sim.reservations import FINAL, make_reservations
+
+
+def web_tuning(tuning, config):
+    """Bật extension web (`current`, `reservations`) theo `config.extensions`; preset gốc không đổi."""
+    contract = {"extensions": list(config.get("extensions", [])), "tuning": deepcopy(tuning)}
+    validate_extensions(contract)
+    return contract["tuning"]
 
 
 class InteractiveGather(GatherSim):
@@ -74,12 +83,17 @@ class InteractiveQuan(QuanSim):
                     self.menu[c["dish_id"]]["recipe"], c["reserved"], self._claimed_items(exclude=c)):
                 return True
         blocked = self._claimed_items()
+        if self.reservations is not None and any(
+                r["state"] not in FINAL and self.item_stock.reserve(self.menu[r["dish_id"]]["recipe"], blocked)
+                is not None for r in self.reservations):
+            return True  # còn khách đặt trước sắp đến và kho đủ món của họ
         return any(self.item_stock.reserve(self.menu[d]["recipe"], blocked) is not None
                    for d in self.allowed_dishes)
 
     def _settle_customers(self, events):
         super()._settle_customers(events)
         if not self.done and not self._can_continue():
+            self._fail_pending_at_closing(events)  # đơn đặt trước còn treo: lỡ đơn (closing)
             for c in list(self.customers):
                 self._leave(c, "closing", events)
             self.done, self.reason = True, "inventory_exhausted"
@@ -99,6 +113,7 @@ class InteractiveDaySim(DaySim):
         self.web_config = config
         self.results = []
         self.gather_inventory = []
+        tuning = web_tuning(tuning, config)
         super().__init__(tuning, web_scenario(tuning, scenario), seed, days)
         for day, plan in self.plans.items():
             opened, _ = unlocked_menu(tuning, config, day)
@@ -123,6 +138,10 @@ class InteractiveDaySim(DaySim):
         self.current = InteractiveGather(effective, scenario, self.streams, self.ids,
                                          day=self.day, active_upgrades=self.active_upgrades)
         self.current.reputation = self.reputation
+        # Khách đặt trước chỉ gọi món đã mở khóa tới Ngày này; công bố ngay sau phase_start(gather).
+        self.reservations = (make_reservations(self.tuning, self.streams.get("reservations"),
+                                               self.unlocked_dishes, self.quan_scenario)
+                             if enabled(self.tuning, "reservations") else None)
 
     def _start_quan(self, stock):
         tuning = {**self.tuning,
@@ -131,7 +150,8 @@ class InteractiveDaySim(DaySim):
                            "customer_interval_s": self.web_config["customer_interval_s"]}}
         self.current = InteractiveQuan(tuning, self.quan_scenario, self.streams, self.ids,
                                        inventory=clone_items(stock), economy={"money": self.money,
-                                       "earned": self.earned, "reputation": self.reputation})
+                                       "earned": self.earned, "reputation": self.reputation},
+                                       reservations=self.reservations)
         self.phase = "quan"
 
     def step(self, inp):

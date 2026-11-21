@@ -5,6 +5,7 @@ from time import monotonic
 from .inputs import BUTTONS_V11, InputState, LiveInputs
 from .interactive import InteractiveSession
 from .inventory import items_to_counts
+from .sim.reservations import public
 
 
 class InteractiveDayWeb:
@@ -111,9 +112,13 @@ class InteractiveDayWeb:
                      unlocked_menu=[{"dish_id": d} for d in sim.unlocked_dishes],
                      newly_unlocked=list(sim.newly_unlocked) if day > 1 else [],
                      menu=[{"dish_id": d, "servings": n} for d, n in plan["dishes"].items()])
+        if sim.reservations is not None:
+            state["reservations"] = public(sim.reservations)
         if self.screen in ("gather", "quan"):
             snap = self.session.snapshot()
             meta = sim.current.t
+            if self.screen == "quan" and sim.reservations is not None:
+                meta = {**meta, "reservations": sim.tuning["reservations"]}
             state["snapshot"] = {**snap, "mode": self.screen,
                                  "meta": {**meta, "spoil_threshold": threshold}}
         elif self.screen == "evening_intro":

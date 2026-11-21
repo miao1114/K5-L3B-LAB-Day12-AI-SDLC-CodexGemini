@@ -322,6 +322,7 @@
         <div class="orders" id="orders" hidden>
           <div id="tickets"></div><div id="kitchen"></div><p id="hand"></p>
         </div>
+        <div class="extras" id="extras" aria-label="Dòng lũ và khách đặt trước" hidden></div>
       </div>
     </aside>
   </div>
@@ -558,6 +559,22 @@ async function restart() {
   }
 }
 
+const reservationStates = { scheduled: "Đã hẹn", holding: "Đang giữ bàn", waiting: "Đang chờ món",
+  served: "Đã phục vụ", failed: "Lỡ đơn" };
+// Extension TICKET-03: dòng nước lũ (snapshot.current) và khách đặt trước (snapshot.reservations).
+function renderExtras(s) {
+  const parts = [];
+  if (s && "current" in s) {
+    parts.push(s.current ? `<p class="current-on"><b>Dòng lũ ${s.current.direction > 0 ? "→" : "←"}</b> còn ${number(Math.ceil(s.current.ticks_left / 60))} s · ở độ sâu ≥ ${number(s.meta?.current?.min_depth)} m bị cuốn</p>` :
+      "<p>Nước êm</p>");
+  }
+  if (Array.isArray(s?.reservations) && s.reservations.length) {
+    parts.push("<h2>Khách đặt trước</h2><ul>" + s.reservations.map(r =>
+      `<li><b>${escapeHTML(r.id)}</b> · ${escapeHTML(r.table_id)} · ${escapeHTML(dishName(r.dish_id))} · ${countdown(r.arrival_tick)} · ${known(reservationStates, r.state) ?? escapeHTML(r.state)}</li>`).join("") + "</ul>");
+  }
+  $("extras").hidden = !parts.length;
+  setHTML("extras", parts.join(""));
+}
 function eventMessage({ name, data }) {
   const d = data ?? {};
   const source = list(snap?.nodes).concat(list(snap?.fish)).find(e => e.id === (d.node_id ?? d.fish_id));
@@ -575,6 +592,15 @@ function eventMessage({ name, data }) {
     case "oxygen_empty": return "Hết oxy — nổi lên ngay!";
     case "choke": return num(d.damage) ? `Bị ngạt — mất ${d.damage} Máu` : "Bị ngạt — mất 1 Máu";
     case "dish_ready": return "Món đã xong";
+    case "current_warning": return "Sắp có dòng lũ — tránh chỗ sâu!";
+    case "current_start": return `Dòng lũ cuốn về ${d.direction > 0 ? "bên phải" : "bên trái"}`;
+    case "current_end": return "Dòng lũ đã qua";
+    case "reservation_announced": return `Khách đặt trước ${d.reservation_id ?? ""} · bàn ${d.table_id ?? ""}`;
+    case "reservation_arrived": return `Khách đặt trước ${d.reservation_id ?? ""} đã đến`;
+    case "reservation_served": return `Đã phục vụ khách đặt trước ${d.reservation_id ?? ""}`;
+    case "reservation_failed": return `Lỡ đơn đặt trước ${d.reservation_id ?? ""} (${known({
+      occupied: "bàn có khách", stock: "thiếu nguyên liệu", patience: "hết kiên nhẫn", closing: "đóng ca", burnt: "cháy món"
+    }, d.reason) ?? d.reason}) · uy tín −1`;
     case "served": return "Đã phục vụ khách";
     case "paid": {
       const paid = d.total ?? d.amount ?? d.money_delta ?? (num(d.price) ? d.price + (num(d.tip) ? d.tip : 0) : null);
@@ -603,6 +629,8 @@ function consumeEvents(events) {
     overlap -= 1;
   }
   for (const event of events.slice(overlap)) {
+    if (event?.name === "current_warning") currentWarnAt = performance.now();
+    if (event?.name === "current_start" || event?.name === "current_end") currentWarnAt = 0;
     const message = eventMessage(event);
     if (message) messages.push(message);
   }
@@ -918,7 +946,8 @@ function renderDay() {
   } else if (stage === "menu") {
     body = "<p>Thu nguyên liệu buổi sáng, mở quán khi trời tối.</p>" +
       (day.enhanced ? '<p class="subtle">Chơi 5 ngày · Cá linh theo đàn · Quán tự đóng khi hết món · Shop thật.</p>' :
-       day.live_scenes ? '<p class="subtle">Gather và Quán dùng mô phỏng thật. Shop chưa kết nối với giao diện này.</p>' : "");
+       day.live_scenes ? '<p class="subtle">Gather và Quán dùng mô phỏng thật. Shop chưa kết nối với giao diện này.</p>' : "") +
+      (day.live_day ? '<p class="subtle">Vòng ngày thật: Gather → Quán → Shop dùng cùng mô phỏng với headless.</p>' : "");
     buttons = flowButton("start", "Chơi") + flowButton("exit", "Thoát");
   } else if (stage === "exited") {
     body = "<p>Bạn có thể đóng tab này hoặc quay lại menu.</p>";
@@ -929,7 +958,9 @@ function renderDay() {
       unlockedMenuHTML() + dishesList(day.menu, "Chưa có món trong kế hoạch.") +
       '<section class="ingredient-goal"><h3>Nguyên liệu cần thu</h3>' +
       itemList(currentDayPlan()?.ingredients, "Chưa có mục tiêu nguyên liệu.") + "</section>" +
-      "<p>Hái hoặc bắt nguyên liệu, sau đó quay về bến và nhấn E để chốt giỏ.</p>";
+      "<p>Hái hoặc bắt nguyên liệu, sau đó quay về bến và nhấn E để chốt giỏ.</p>" +
+      (Array.isArray(day.reservations) && day.reservations.length ? "<section><h3>Khách đặt trước tối nay</h3><ul>" +
+        day.reservations.map(r => `<li>${escapeHTML(r.id)} · bàn ${escapeHTML(r.table_id)} · ${escapeHTML(dishName(r.dish_id))} · đến lúc ${countdown(r.arrival_tick)}</li>`).join("") + "</ul></section>" : "");
     buttons = flowButton("continue", "Ra bến");
   } else if (stage === "evening_intro") {
     body = (day.gather_reason === "fainted" ? "<p>Bà Út bị ngất. Giỏ đã rỗng.</p>" : "") +
@@ -993,6 +1024,7 @@ function render() {
   const activity = gather ? "Lặn bắt cá và hái rau" : mode === "quan" ? "Mở quán trên bè" : "Đang kết nối";
   setText("activity", day ? `Ngày ${number(day.day)}/${number(day.days)} · ${activity}` : activity);
   setText("interact-key", gather ? "Hái / cập bến" : mode === "quan" ? "Bếp / bàn" : "Tương tác");
+  renderExtras(snap);
   if (gather) renderGather(snap);
   else if (mode === "quan") renderQuan(snap);
   else {
@@ -1197,7 +1229,65 @@ function visualPos(entity, key) {
 }
 
 let swimAtlas;
+// Extension "current": vùng nước sâu bị cuốn. Chỉ vẽ khi snapshot có trường `current` (extension bật).
+let currentWarnAt = 0;
+function drawCurrent(at, size) {
+  if (!("current" in snap)) return;
+  const cfg = snap.meta?.current, bounds = snap.meta?.bounds;
+  if (!num(cfg?.min_depth) || !position(bounds?.x) || !position(bounds?.d)) return;
+  const [x0, y0] = at([bounds.x[0], cfg.min_depth]);
+  const [x1, y1] = at([bounds.x[1], bounds.d[1]]);
+  const now = performance.now();
+  const warnMs = num(cfg.warning_ticks) ? cfg.warning_ticks / tickRate() * 1000 : 2000;
+  const warning = !snap.current && currentWarnAt && now - currentWarnAt < warnMs + 500;
+  ctx.save();
+  if (snap.current) {
+    const dir = snap.current.direction > 0 ? 1 : -1;
+    ctx.fillStyle = "#3d8fd640";
+    ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.beginPath();
+    ctx.rect(x0, y0, x1 - x0, y1 - y0);
+    ctx.clip();
+    // Vệt nước chạy theo hướng dòng lũ.
+    const gap = 70, shift = reducedMotion.matches ? 0 : (now / 6) % gap;
+    ctx.strokeStyle = "#d8eeffb0";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    for (let row = 0, y = y0 + 14; y < y1; row++, y += 26) {
+      for (let x = x0 - gap + (row % 2) * gap / 2; x < x1 + gap; x += gap) {
+        const sx = x + dir * shift;
+        ctx.beginPath();
+        ctx.moveTo(sx, y);
+        ctx.lineTo(sx + dir * 26, y);
+        ctx.lineTo(sx + dir * 20, y - 4);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+    const left = Math.ceil(Math.max(0, snap.current.ticks_left) / tickRate());
+    label(`${dir > 0 ? "→" : "←"} Dòng lũ cuốn ${dir > 0 ? "sang phải" : "sang trái"} · còn ${left}s`, (x0 + x1) / 2, y0 + 14, true);
+    return;
+  }
+  // Nước êm: vạch mảnh báo ranh giới vùng sẽ bị cuốn; nhấp nháy khi có cảnh báo.
+  const blink = warning && (reducedMotion.matches || Math.floor(now / 250) % 2 === 0);
+  ctx.setLineDash([8, 6]);
+  ctx.lineWidth = warning ? 3 : 1.5;
+  ctx.strokeStyle = warning ? (blink ? "#ffd166" : "#ff8a5c") : "#e4f2ffb0";
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1, y0);
+  ctx.stroke();
+  if (warning) {
+    ctx.fillStyle = "#ffd16626";
+    ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+  }
+  ctx.restore();
+  if (warning) label(`⚠ Sắp có dòng lũ — lên trên ${number(cfg.min_depth)} m!`, (x0 + x1) / 2, y0 + 14, true);
+  else label(`Vùng lũ ≥ ${number(cfg.min_depth)} m`, x1 - size, y0 + 12);
+}
+
 function drawGather(at, size) {
+  drawCurrent(at, size);
   if (position(snap.meta.dock_pos)) pin(...at(snap.meta.dock_pos), "Bến");
   for (const node of list(snap.nodes)) {
     if (!position(node.pos)) continue;
@@ -1251,6 +1341,38 @@ function drawGather(at, size) {
     label("Bà Út", x, y + size * .45 + 11, true);
   }
 }
+// Extension "reservations": biển đặt trước trên bàn (đang giữ bàn / sắp đến / đang chờ món).
+function drawReservation(r, x, y, size) {
+  if (!r) return;
+  const phaseTick = num(snap.phase_tick) ? snap.phase_tick : snap.tick;
+  const left = num(phaseTick) && num(r.arrival_tick) ? Math.ceil(Math.max(0, r.arrival_tick - phaseTick) / tickRate()) : null;
+  if (r.state === "scheduled") {
+    if (left !== null && left <= 60) label(`${r.id} hẹn ${left}s`, x, y + 36);
+    return;
+  }
+  const holding = r.state === "holding";
+  const text = holding ? `ĐẶT TRƯỚC ${r.id}` : `★ ${r.id}`;
+  ctx.save();
+  ctx.font = "800 12px system-ui, sans-serif";
+  const width = ctx.measureText(text).width + 16, height = 20;
+  const top = y - size * .55 - height;
+  ctx.fillStyle = holding ? "#f4c542" : "#ffe08a";
+  ctx.strokeStyle = "#5b3b0c";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x - width / 2, top, width, height, 5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#3a2606";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x, top + height / 2);
+  ctx.restore();
+  const sub = holding ? `${dishName(r.dish_id)} · đến sau ${left ?? "—"}s` : `Chờ ${dishName(r.dish_id)}` +
+    (num(snap.meta?.reservations?.price_multiplier) ? ` · giá ×${number(snap.meta.reservations.price_multiplier)}` : "");
+  label(sub, x, y + 36);
+}
+
 let quanFixtures, walkAtlas;
 function drawQuan(at, size, w) {
   quanFixtures ??= {
@@ -1267,6 +1389,7 @@ function drawQuan(at, size, w) {
     pin(x, y, stove.id ?? "Bếp", active);
   }
   const customers = list(snap.customers);
+  const reservations = list(snap.reservations);
   for (const table of list(snap.tables)) {
     if (!position(table.pos)) continue;
     const [x, y] = at(table.pos);
@@ -1280,6 +1403,7 @@ function drawQuan(at, size, w) {
       drawSprite(guests[id % guests.length], x + offset, y + 4, size * .74, 0, 1, 1);
     }
     pin(x, y, table.id ?? "Bàn", Boolean(customer));
+    drawReservation(reservations.find(r => r.table_id === table.id && !["served", "failed"].includes(r.state)), x, y, size);
   }
   if (!position(snap.player?.pos)) return;
   const [x, y] = at(blendPosition(snap.player.pos, previousPose?.player?.pos));

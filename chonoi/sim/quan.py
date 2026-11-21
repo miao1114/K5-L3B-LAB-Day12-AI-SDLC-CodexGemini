@@ -11,14 +11,16 @@ from ..ids import sort_by_id
 from ..inventory import clone_items, items_to_counts, materialize_items
 from .kitchen import KitchenServingMixin
 from .ramp import ramp_velocity
+from .reservations import ReservationMixin, public
 from .restaurant_stock import RestaurantStock
 
 
-class QuanSim(KitchenServingMixin):
+class QuanSim(ReservationMixin, KitchenServingMixin):
     mode = "quan"
     phase = "quan"
 
-    def __init__(self, tuning, scenario, streams, ids, inventory=None, *, day_plan=None, economy=None):
+    def __init__(self, tuning, scenario, streams, ids, inventory=None, *, day_plan=None, economy=None,
+                 reservations=None):
         """Standalone by default; P2-03 can pass a per-day plan and economy.
 
         day_plan uses its existing {dishes: {dish_id: servings}} object. Counts
@@ -90,6 +92,8 @@ class QuanSim(KitchenServingMixin):
         self.done = False
         self.reason = None
         self._validate_kitchen_state()
+        # extension khách đặt trước; `reservations` do DaySim truyền (đã công bố buổi sáng)
+        self._init_reservations(tuning, scenario, reservations)
 
     def economy_state(self):
         """Copy totals to P2-03/Shop without sharing mutable restaurant state."""
@@ -110,7 +114,7 @@ class QuanSim(KitchenServingMixin):
         stock = items
         if self.item_stock is None:
             stock = {k: self.stock[k] for k in sorted(self.stock) if self.stock[k] > 0}
-        return {
+        snap = {
             "player": {"pos": self.pos, "vel": self.vel},
             "stock": stock,
             "stock_items": items,
@@ -120,6 +124,13 @@ class QuanSim(KitchenServingMixin):
             "tables": [{"id": tb["id"], "pos": tb["pos"], "customer_id": occupied.get(tb["id"])} for tb in self.tables],
             "customers": sort_by_id(self.customers),
         }
+        if self.reservations is not None:
+            by_table = self._reservation_tables()
+            for table in snap["tables"]:
+                table["reservation_id"] = by_table.get(table["id"])
+            snap["customers"] = [{**c, "reservation_id": c.get("reservation_id")} for c in snap["customers"]]
+            snap["reservations"] = public(self.reservations)
+        return snap
 
     def inventory_items(self):
         """Danh sách cá thể còn trong kho vật lý sau các lần nấu."""
@@ -150,6 +161,7 @@ class QuanSim(KitchenServingMixin):
             self._interact(events)
         self._settle_customers(events)
         if not self.done:
+            self._step_reservations(events)  # đặt trước xử lý trước khách thường
             self._maybe_add_customer(events)
         return events
 
@@ -177,7 +189,9 @@ class QuanSim(KitchenServingMixin):
             customer["reserved"].clear()
             recipe = self.menu[customer["dish_id"]]["recipe"]
             claim = self.item_stock.reserve(recipe, self._claimed_items())
-            if claim is None:
+            if claim is None and customer.get("reservation_id"):
+                self._fail_reservation(self._reservation(customer["reservation_id"]), "stock", events, customer)
+            elif claim is None:
                 customer["order_status"] = "unfulfillable"
             else:
                 customer["reserved"] = claim
@@ -186,7 +200,7 @@ class QuanSim(KitchenServingMixin):
         since_first = self.phase_tick - self.t["first_customer_tick"]
         if not self.random_customers or since_first < 0 or since_first % self.customer_interval_ticks:
             return
-        occupied = {customer["table_id"] for customer in self.customers}
+        occupied = {customer["table_id"] for customer in self.customers} | self._held_tables()
         table = next((table for table in self.tables if table["id"] not in occupied), None)
         if table is None:
             return

@@ -210,6 +210,8 @@ class KitchenServingMixin:
             if consumed is None:
                 return
             c["base_price"], items = consumed
+            if c.get("reservation_id"):  # extension đặt trước: giá theo fresh × hệ số, làm tròn xuống
+                c["base_price"] = self._reservation_price(c["base_price"])
             c["reserved"].clear()
             c["order_status"] = "assigned"
             stove.update(state="cooking", dish=self._dish_for(c), ready_ticks=0,
@@ -252,8 +254,14 @@ class KitchenServingMixin:
                  eat_ticks_left=self._ticks(self.t["eat_s"]))
         events.append(("served", {**self._dish_for(c), "table_id": c["table_id"],
                                   "patience_ticks_left": c["patience_ticks_left"], "tip": tip}))
+        if c.get("reservation_id"):
+            self._reservation(c["reservation_id"])["state"] = "served"
+            events.append(("reservation_served", {"reservation_id": c["reservation_id"], "order_id": c["id"],
+                                                  "base_price": c["base_price"]}))
 
     def _settle_customers(self, events):
+        if self.time_left_ticks == 0 and getattr(self, "reservations", None) is not None:
+            self._fail_pending_at_closing(events)
         # One table-ordered pass, including mixed payments/departures. An eating
         # timer that expires on closing still gets reason=finished_eating.
         for c in sort_by_id(self.customers, key=lambda c: c["table_id"]):
@@ -291,6 +299,9 @@ class KitchenServingMixin:
 
     def _leave(self, c, reason, events):
         # Shared cleanup for fixture and scheduled customers; emit only once.
+        if c.get("reservation_id"):  # khách đặt trước: reservation_failed thay cho customer_left
+            self._fail_reservation(self._reservation(c["reservation_id"]), reason, events, c)
+            return
         if reason != "closing":
             self._change_reputation(self.t["left_reputation_delta"])
         events.append(("customer_left", {"order_id": c["id"], "table_id": c["table_id"],

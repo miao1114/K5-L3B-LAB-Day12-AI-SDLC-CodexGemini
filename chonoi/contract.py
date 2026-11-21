@@ -4,6 +4,7 @@ import json
 import os
 
 from .errors import BadInput
+from .extensions import validate_extensions
 
 DEFAULT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "game.contract.json")
 
@@ -33,6 +34,7 @@ def load_contract(path=DEFAULT_PATH) -> dict:
         _between("inventory.gather_decay_per_s", inventory["gather_decay_per_s"], 0, 100)
         _between("inventory.quan_decay_per_s", inventory["quan_decay_per_s"], 0, 100)
         _between("inventory.spoil_threshold", inventory["spoil_threshold"], 0, 100)
+    validate_extensions(c)  # chép `extensions` vào tuning cho sim (current, reservations)
     return c
 
 

@@ -5,11 +5,13 @@
   "build_cmd": "true",
   "run_cmd": "python3 -m chonoi.live --mode gather",
   "headless_cmd": "python3 -m chonoi.headless",
+  "extensions": [],
   "tuning": {
     "tick_hz": 60,
     "inventory": {"initial_fresh": 100.0, "gather_decay_per_s": 0.5, "quan_decay_per_s": 0.25, "spoil_threshold": 30.0},
     "gather": {
       "duration_s": 180,
+      "current": {"interval_ticks": 1800, "duration_ticks": 480, "warning_ticks": 120, "min_depth": 10, "speed": 1.5},
       "bounds": {"x": [0, 100], "d": [0, 30]},
       "dock_pos": [2, 0],
       "dock_radius": 3,
@@ -110,6 +112,7 @@
         "hp": [{"level": 1, "price": 250, "hp_max": 4}, {"level": 2, "price": 500, "hp_max": 5}]
       }
     },
+    "reservations": {"count": 2, "table_hold_s": 30, "price_multiplier": 1.5, "failed_reputation_delta": -1},
     "score": {"reputation_multiplier": 100}
   }
 }
