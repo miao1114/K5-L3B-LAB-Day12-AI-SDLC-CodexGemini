@@ -158,6 +158,16 @@
   .inventory-list .spoiled, .stock .spoiled b { color: #802512; }
   .slot.spoiled { border: 2px solid #a34d32; background: #f8d5c6; }
   .orders > * { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--paper-line); }
+  /* Quán: đơn hàng/bếp/tay lên đầu; kho (độ tươi đổi liên tục) xuống cuối, cao cố định và cuộn riêng
+     để danh sách đơn không bị đẩy hay nhảy khi số liệu kho cập nhật. */
+  .tray { display: flex; flex-direction: column; }
+  .tray > #orders { order: -1; }
+  .tray > #stock:not([hidden]) {
+    order: 1; margin-top: 12px; border-top: 1px solid var(--paper-line);
+    max-height: 210px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+  }
+  .tray > #stock h2 { position: sticky; top: 0; z-index: 1; background: var(--paper); padding: 10px 0 4px; margin: 0; }
+  .ticket, .stove { font-variant-numeric: tabular-nums; }
   .ticket + .ticket, .stove + .stove { margin-top: 5px; }
   .ticket .meter-line { display: flex; margin-top: 3px; }
   .ticket .danger { color: #942f19; }
@@ -397,7 +407,9 @@ function setText(id, value) {
 const htmlCache = new Map();
 function setHTML(id, value) {
   if (htmlCache.get(id) === value) return;
-  $(id).innerHTML = value;
+  const element = $(id), scrollTop = element.scrollTop;
+  element.innerHTML = value;
+  if (scrollTop) element.scrollTop = scrollTop;  // vùng cuộn kho không nhảy về đầu mỗi lần độ tươi đổi
   htmlCache.set(id, value);
 }
 
@@ -874,11 +886,14 @@ function renderQuan(s) {
       cooking: "Đang nấu" + (num(stove.cook_ticks_left) ? ` · còn ${countdown(stove.cook_ticks_left)}` : ""),
       ready: "Món đã xong"
     }, stove.state) ?? "Chưa rõ trạng thái";
-    const dish = stove.dish ? " · " + escapeHTML(dishName(stove.dish)) : "";
+    const stoveTable = stove.dish ? tableForOrder(stove.dish.order_id) : null;
+    const dish = stove.dish ? " · " + escapeHTML(dishName(stove.dish)) + (stoveTable ? ` · <b>Bàn ${escapeHTML(stoveTable)}</b>` : "") : "";
     return `<p class="stove">${dishArt(stove.dish, "dish-preview")}<b>${escapeHTML(stove.id ?? "—")}</b> · ${state}${dish}</p>`;
   }).join("") || '<p class="stove">Đang chờ dữ liệu bếp</p>'));
+  const handTable = s.hand ? tableForOrder(s.hand.order_id) : null;
   setHTML("hand", s.hand === null ? "Tay trống" : s.hand === undefined ? "Món đang cầm · —" :
-    dishArt(s.hand, "dish-preview") + "Đang cầm · " + escapeHTML(dishName(s.hand)));
+    dishArt(s.hand, "dish-preview") + "Đang cầm · " + escapeHTML(dishName(s.hand)) +
+    (handTable ? ` → <b>Bàn ${escapeHTML(handTable)}</b>` : " · Chưa rõ bàn"));
   setText("hint", !canPlay() ? "" : day?.fixture ? "Bản thử · E kết thúc ca" :
     "E · Tương tác với bếp hoặc bàn");
 }
@@ -1387,6 +1402,12 @@ function drawQuan(at, size, w) {
     if (sprite) drawSprite(sprite, x, y, w * .116, 0, 1, 1);
     const active = stove.state === "cooking" || stove.state === "ready";
     pin(x, y, stove.id ?? "Bếp", active);
+    // Bàn của món đang nấu: dish.order_id -> customer.id -> table_id (không suy từ số bếp).
+    if (stove.dish && active) {
+      const table = tableForOrder(stove.dish.order_id) ?? "?";
+      label(stove.state === "ready" ? `${table} · Món chín` :
+        `${table} · ${num(stove.cook_ticks_left) ? countdown(stove.cook_ticks_left) : "Đang nấu"}`, x, y + 36, stove.state === "ready");
+    }
   }
   const customers = list(snap.customers);
   const reservations = list(snap.reservations);
@@ -1401,6 +1422,8 @@ function drawQuan(at, size, w) {
       const id = Number(String(customer.id).match(/\d+$/)?.[0] ?? 0);
       ellipse(x + offset, y + 4, size * .19, 5, "#211d17a0");
       drawSprite(guests[id % guests.length], x + offset, y + 4, size * .74, 0, 1, 1);
+      // Cùng điểm neo với sprite khách (đáy tại y + 4, cao tối đa size * .74).
+      drawCustomerBar(customer, x + offset, y + 4 - size * .74 - 6, size);
     }
     pin(x, y, table.id ?? "Bàn", Boolean(customer));
     drawReservation(reservations.find(r => r.table_id === table.id && !["served", "failed"].includes(r.state)), x, y, size);
@@ -1422,8 +1445,102 @@ function drawQuan(at, size, w) {
     ellipse(x + size * .33, y - size * .38, size * .14, size * .09, "#fff0d5");
     ellipse(x + size * .33, y - size * .39, size * .09, size * .05, "#ac6940");
   }
-  label("Bà Út", x, w < 500 ? y + 13 : y - size - 11, true);
+  const nameY = w < 500 ? y + 13 : y - size - 11;
+  label("Bà Út", x, nameY, true);
+  drawServingBadge(x, w < 500 ? y - size - 14 : nameY - 26);
 }
+
+// FEATURE 01 — thanh trạng thái trên đầu khách. Chỉ đọc timer của simulation, không tự đếm.
+const CUSTOMER_BAR_DANGER_RATIO = 0.2;  // còn ≤ 20% kiên nhẫn ban đầu -> đỏ "Sắp bỏ đi"
+function customerStatus(c) {
+  if (c.state === "eating") {
+    const max = num(snap.meta?.eat_s) ? snap.meta.eat_s * tickRate() : null;
+    return num(c.eat_ticks_left) && max > 0 ? { kind: "eat", ratio: c.eat_ticks_left / max } : null;
+  }
+  if (c.state !== "waiting") return null;
+  const max = num(c.patience_max_ticks) ? c.patience_max_ticks : num(snap.meta?.patience_s) ? snap.meta.patience_s * tickRate() : null;
+  if (!num(c.patience_ticks_left) || !(max > 0)) return null;
+  const ratio = c.patience_ticks_left / max;
+  return { kind: ratio <= CUSTOMER_BAR_DANGER_RATIO ? "danger" : "wait", ratio };
+}
+const customerBarStyle = {
+  wait: { fill: "#5cc46a", text: "Đang chờ" },
+  eat: { fill: "#f2c335", text: "Đang ăn" },
+  danger: { fill: "#e5483b", text: "⚠ Sắp bỏ đi" }
+};
+function drawCustomerBar(c, cx, bottom, size) {
+  const status = customerStatus(c);
+  if (!status) return;
+  const style = customerBarStyle[status.kind];
+  const width = Math.max(40, Math.min(55, size * .72)), height = 6;
+  const left = cx - width / 2, top = bottom - height;
+  const ratio = Math.max(0, Math.min(1, status.ratio));
+  // Nhịp chậm ~1,2 s cho trạng thái đỏ; tắt khi người dùng giảm chuyển động hoặc đang tạm dừng.
+  const pulse = status.kind === "danger" && !reducedMotion.matches && !day?.paused ?
+    .65 + .35 * Math.abs(Math.sin(performance.now() / 380)) : 1;
+  ctx.save();
+  ctx.fillStyle = "#1a1510d9";
+  ctx.beginPath();
+  ctx.roundRect(left - 2, top - 2, width + 4, height + 4, 4);
+  ctx.fill();
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = style.fill;
+  if (ratio > 0) {
+    ctx.beginPath();
+    ctx.roundRect(left, top, Math.max(2, width * ratio), height, 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.font = "700 10px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "#1a1510e6";
+  ctx.strokeText(style.text, cx, top - 3);
+  ctx.fillStyle = status.kind === "danger" ? "#ffd2c9" : "#fff4dc";
+  ctx.fillText(style.text, cx, top - 3);
+  ctx.restore();
+}
+
+// FEATURE 02 — bàn cần mang món tới: hand.order_id -> customer.id -> table_id.
+function tableForOrder(orderId) {
+  if (typeof orderId !== "string") return null;
+  return list(snap?.customers).find(c => c.id === orderId)?.table_id ?? null;
+}
+let badgeOrder = null, badgeShownAt = 0;
+function drawServingBadge(x, y) {
+  const orderId = snap.hand?.order_id ?? null;
+  if (orderId !== badgeOrder) {
+    badgeOrder = orderId;
+    badgeShownAt = performance.now();
+  }
+  if (!orderId) return;
+  const table = tableForOrder(orderId);
+  const text = table ? `🍽 MANG TỚI ${table}` : "Chưa rõ bàn";
+  const grow = reducedMotion.matches ? 1 : Math.min(1, (performance.now() - badgeShownAt) / 180);
+  ctx.save();
+  ctx.translate(x, Math.max(14, y));  // không bị cắt ở mép trên Canvas
+  ctx.scale(.7 + .3 * grow, .7 + .3 * grow);
+  ctx.font = "800 13px system-ui, sans-serif";
+  const width = ctx.measureText(text).width + 18, height = 22;
+  ctx.fillStyle = table ? "#0f6b73" : "#7a3b2e";
+  ctx.strokeStyle = "#e9fbff";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(-width / 2, -height / 2, width, height, 6);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, 0, 1);
+  ctx.restore();
+  if (!table && !unmatchedOrders.has(orderId)) {
+    unmatchedOrders.add(orderId);
+    console.warn("Món trên tay không khớp đơn nào", orderId);  // ghi một lần để kiểm tra backend
+  }
+}
+const unmatchedOrders = new Set();
 
 function draw() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
