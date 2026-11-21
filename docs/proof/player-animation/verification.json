@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "checks": 15,
+  "results": [
+    "quan: all 4 moving poses, >=8 frame changes/second, correct facing",
+    "quan: release returns to stable idle",
+    "quan: direction reversal animates",
+    "quan: player walking and NPC entering animate simultaneously and independently",
+    "quan: RAF advances sprite phase between snapshots",
+    "quan: stalled snapshots stop animation",
+    "quan: day pause freezes animation",
+    "quan: reduced motion retains static pose",
+    "gather: all 5 moving poses, >=8 frame changes/second, correct facing",
+    "gather: release returns to stable idle",
+    "gather: direction reversal animates",
+    "gather: RAF advances sprite phase between snapshots",
+    "gather: stalled snapshots stop animation",
+    "gather: day pause freezes animation",
+    "gather: reduced motion retains static pose"
+  ],
+  "browser_errors": []
+}

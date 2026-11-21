@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "mode": "gather",
+      "result": "PASS",
+      "observed": {
+        "frames": [
+          "0:0:-1",
+          "0:1:-1",
+          "0:2:-1",
+          "1:0:-1"
+        ],
+        "phase": 2.032800000000024,
+        "tick": 45,
+        "position": [
+          21.55000000000002,
+          5
+        ],
+        "preference": "true"
+      }
+    },
+    {
+      "mode": "gather",
+      "result": "PASS",
+      "check": "explicit off keeps idle; NPC setting remains on"
+    },
+    {
+      "mode": "quan",
+      "result": "PASS",
+      "observed": {
+        "frames": [
+          "0:0:1",
+          "2:1:1",
+          "2:2:1",
+          "2:3:1"
+        ],
+        "phase": 2.1079999999999925,
+        "tick": 33,
+        "position": [
+          8.83333333333333,
+          5
+        ],
+        "preference": "true"
+      }
+    },
+    {
+      "mode": "quan",
+      "result": "PASS",
+      "check": "explicit off keeps idle; NPC setting remains on"
+    }
+  ],
+  "browser_errors": [],
+  "scope": "Real Microsoft Edge, enhanced Day adapter, real WASD/HTTP; system reduced motion emulated ON."
+}

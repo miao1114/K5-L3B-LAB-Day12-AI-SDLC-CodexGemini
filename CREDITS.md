@@ -18,3 +18,6 @@ Liệt kê asset ngoài (nguồn, giấy phép CC0/CC-BY/MIT) và công cụ AI 
 - Phase 3 tách sáu sprite WebP trong suốt từ `BackgroundQuans.png`. Nền `quan-nen.webp` dùng ImageGen để bỏ hai bếp và bốn bàn, lấp lại sàn gỗ và vách tre theo ảnh gốc.
 - Sprite `ba-ut-di-bo.webp` dùng ImageGen từ hình Bà Út của nhóm. Ba hàng là chính diện, quay lưng và nhìn ngang. Mỗi hàng gồm một dáng đứng và bốn khung bước, căn theo bàn chân.
 - Sprite `ba-ut-nhip-boi.webp` dùng ImageGen từ tư thế bơi của nhóm, gồm một dáng lướt và năm khung quạt tay, đạp chân nhìn ngang.
+- NPC Walk-In: nhóm cung cấp bốn spritesheet AI `khach-nam-di-bo.webp`,
+  `khach-nu-di-bo.webp`, `khach-nam-ngoi.webp`, `khach-nu-ngoi.webp`.
+  Dùng trực tiếp ảnh WebP, không dùng hai PNG ngồi kèm bàn và không tạo thêm bàn.

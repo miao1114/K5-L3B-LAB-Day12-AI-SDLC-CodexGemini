@@ -340,6 +340,8 @@
         <span id="restart-key"><kbd>R</kbd> Chơi lại</span>
         <span id="sprint-key" hidden><kbd>Shift</kbd> Chạy nhanh</span>
         <span id="pause-key" hidden><kbd>P</kbd><kbd>Esc</kbd> Tạm dừng</span>
+        <label id="npc-motion-control" hidden><input id="npc-motion" type="checkbox"> Khách đi bộ</label>
+        <label><input id="player-motion" type="checkbox"> Hoạt ảnh Bà Út</label>
       </div>
     </section>
     <aside class="ledger" aria-labelledby="character">
@@ -371,6 +373,53 @@ const ctx = canvas.getContext("2d");
 let paintPending = true;
 const renderBenchmark = location.search === "?benchmark=render";
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+let npcMotionPreference = null;
+try {
+  const saved = localStorage.getItem("chonoi.npcMotion");
+  if (saved === "true" || saved === "false") npcMotionPreference = saved === "true";
+} catch {}
+let playerMotionPreference = null;
+try {
+  const saved = localStorage.getItem("chonoi.playerMotion");
+  if (saved === "true" || saved === "false") playerMotionPreference = saved === "true";
+} catch {}
+// Explicit preview link opts into animation even when this browser requests reduced motion.
+if (new URLSearchParams(location.search).get("motion") === "on") {
+  playerMotionPreference = npcMotionPreference = true;
+  try {
+    localStorage.setItem("chonoi.playerMotion", "true");
+    localStorage.setItem("chonoi.npcMotion", "true");
+  } catch {}
+}
+const playerMotionEnabled = () => playerMotionPreference ?? !reducedMotion.matches;
+function showPlayerMotionPreference() {
+  $("player-motion").checked = playerMotionEnabled();
+  $("player-motion").title = playerMotionEnabled() ? "Đang bật hoạt ảnh bơi và đi bộ" :
+    "Hoạt ảnh đang tắt. Bật để đổi tư thế bơi và đi bộ, kể cả khi trình duyệt yêu cầu giảm chuyển động.";
+}
+$("player-motion").addEventListener("change", () => {
+  playerMotionPreference = $("player-motion").checked;
+  try { localStorage.setItem("chonoi.playerMotion", String(playerMotionPreference)); } catch {}
+  showPlayerMotionPreference();
+  invalidate();
+});
+reducedMotion.addEventListener("change", showPlayerMotionPreference);
+showPlayerMotionPreference();
+const npcMotionEnabled = () => npcMotionPreference ?? !reducedMotion.matches;
+function showNpcMotionPreference() {
+  $("npc-motion").checked = npcMotionEnabled();
+  $("npc-motion-control").title = npcMotionPreference === null && reducedMotion.matches ?
+    "Đang tắt theo cài đặt giảm chuyển động của hệ thống. Bạn có thể bật riêng cho khách." :
+    "Chỉ thay đổi hoạt ảnh khách, không thay đổi luật chơi.";
+}
+$("npc-motion").addEventListener("change", () => {
+  npcMotionPreference = $("npc-motion").checked;
+  try { localStorage.setItem("chonoi.npcMotion", String(npcMotionPreference)); } catch {}
+  showNpcMotionPreference();
+  invalidate();
+});
+reducedMotion.addEventListener("change", showNpcMotionPreference);
+showNpcMotionPreference();
 const labels = [];
 const itemNames = {
   ca_loc: "cá lóc", ca_linh: "cá linh", bong_sung: "bông súng", bong_dien_dien: "bông điên điển", ca_keo: "cá kèo", keo_neo: "kèo nèo"
@@ -442,8 +491,9 @@ function setHTML(id, value) {
 let snap = null, day = null, problem = "", restartPending = false, epoch = 0;
 let actionPending = false, actionError = "", exited = false, hitUntil = 0;
 let previousPose = null, poseAt = 0, poseMs = 0;
-const motionCycles = { quan: { frames: 4, distance: .5 }, gather: { frames: 5, distance: .55 } };
-let walkRow = 0, walkFacing = 1, motionOffset = 0, motionDelta = 0;
+const motionCycles = { quan: { frames: 4, fps: 10 }, gather: { frames: 5, fps: 10 } };
+const playerMotion = { phase: 0, speed: 0, sampledAt: 0, moving: false, frameAt: null };
+let walkRow = 0, walkFacing = 1, motionDelta = 0;
 const stages = ["menu", "day_intro", "gather", "evening_intro", "quan", "day_result", "shop", "summary"];
 let eventWindow = [], messages = [], messageTimer = 0;
 const held = new Set();
@@ -587,6 +637,8 @@ async function restart() {
   await writes;
   try {
     await request("/restart", "{}");
+    npcWalk.actors.clear();
+    npcWalk.token = null;
     snap = null;
     problem = "";
     needsRelease = false;
@@ -690,12 +742,14 @@ function acceptState(state) {
   const changed = day?.screen !== nextDay?.screen || day?.day !== nextDay?.day ||
     snap?.mode !== nextSnap?.mode || (num(snap?.tick) && num(nextSnap?.tick) && nextSnap.tick < snap.tick);
   if (changed) {
+    npcWalk.actors.clear();
     cameraSnap = true;
     resetMessages();
     actionError = "";
     held.clear();
     lastInput = "";
-    walkRow = motionOffset = 0;
+    walkRow = 0;
+    playerMotion.phase = 0;
     walkFacing = 1;
     if (nextSnap) needsRelease = true;
   }
@@ -703,15 +757,20 @@ function acceptState(state) {
   if (changed || nextDay?.paused || day?.paused || nextSnap?.error || nextSnap?.finished) {
     previousPose = null;
     motionDelta = 0;
+    playerMotion.speed = 0;
+    playerMotion.moving = false;
+    playerMotion.frameAt = null;
   } else if (num(nextSnap?.tick) && nextSnap.tick !== snap?.tick && snap) {
     previousPose = snap;
-    poseMs = Math.min(100, Math.max(1, now - poseAt));
+    poseMs = Math.min(200, Math.max(1, now - poseAt));
     const cycle = motionCycles[nextSnap.mode];
     if (cycle && position(snap.player?.pos) && position(nextSnap.player?.pos)) {
       const dx = nextSnap.player.pos[0] - snap.player.pos[0];
       const dz = nextSnap.player.pos[1] - snap.player.pos[1];
-      motionOffset = (motionOffset + motionDelta) % (cycle.frames * cycle.distance);
       motionDelta = Math.hypot(dx, dz);
+      const elapsedTicks = nextSnap.tick - snap.tick;
+      playerMotion.speed = elapsedTicks > 0 ? motionDelta * tickRate() / elapsedTicks : 0;
+      playerMotion.sampledAt = now;
       if (nextSnap.mode === "quan" && motionDelta > 0) {
         walkRow = Math.abs(dx) >= Math.abs(dz) - 1e-6 ? 2 : dz > 0 ? 1 : 0;
         walkFacing = walkRow === 2 && dx < 0 ? -1 : 1;
@@ -721,6 +780,10 @@ function acceptState(state) {
   if (changed || nextSnap?.tick !== snap?.tick) poseAt = now;
   snap = nextSnap;
   day = nextDay;
+  npcWalk.sync(snap, `${day?.day ?? 0}:${day?.screen ?? snap?.mode}`, !npcMotionEnabled());
+  $("npc-motion-control").hidden = snap?.mode !== "quan";
+  showNpcMotionPreference();
+  showPlayerMotionPreference();
   problem = "";
   if (state.error || snap?.finished || day?.paused) {
     held.clear();
@@ -1262,6 +1325,121 @@ const protagonist = $("portrait");
 protagonist.addEventListener("load", invalidate);
 const swimmer = loadSprite("ba-ut-boi");
 const guests = [loadSprite("khach-nam"), loadSprite("khach-nu")];
+const npcSheets = ["nam", "nu"].map(gender => ({
+  walk: loadSprite(`khach-${gender}-di-bo`), sit: loadSprite(`khach-${gender}-ngoi`)
+}));
+for (const sheet of npcSheets) for (const image of Object.values(sheet)) {
+  image.addEventListener("error", () => console.warn("NPC asset unavailable; using guest fallback", image.src));
+}
+
+// Presentation only: snapshot membership owns tables/orders; this cache owns animation.
+class NpcWalkController {
+  constructor() { this.actors = new Map(); this.seen = false; this.clock = 0; }
+  sync(snapshot, token, reduced = false) {
+    const hydrate = !this.seen;
+    this.seen = true;
+    if (this.token !== token || snapshot?.mode !== "quan") this.actors.clear();
+    this.token = token;
+    if (snapshot?.mode !== "quan") return;
+    const bounds = snapshot.meta?.bounds;
+    if (!bounds?.x || !bounds?.z) return;
+    const [lo, hi] = bounds.x, [bottom, top] = bounds.z;
+    const sx = (hi - lo) / 16, sz = (top - bottom) / 10;
+    // Door at background (0.50, 0.95); central aisle stays left of all tables.
+    this.entry = [lo + (hi - lo) * .56, bottom - (top - bottom) * .08];
+    this.aisle = lo + (hi - lo) * .41;
+    const present = new Set();
+    for (const customer of snapshot.customers ?? []) {
+      const table = snapshot.tables?.find(t => t.id === customer.table_id);
+      if (!table?.pos) continue;
+      present.add(customer.id);
+      let actor = this.actors.get(customer.id);
+      if (!actor) {
+        const seat = [table.pos[0] - .6 * sx, table.pos[1] + 1.65 * sz];
+        const route = [[...this.entry], [this.aisle, bottom + .2 * sz],
+          [this.aisle, table.pos[1] + 2.3 * sz],
+          [seat[0], table.pos[1] + 2.3 * sz], seat];
+        actor = { id: customer.id, gender: Number(String(customer.id).match(/\d+$/)?.[0] ?? 0) % 2,
+          seat, route, pos: [...route[0]], phase: "entering", elapsed: 0, row: 1, facing: 1 };
+        this.actors.set(customer.id, actor);
+        this.travel(actor, route, "entering");
+        const tick = snapshot.phase_tick ?? snapshot.tick;
+        // The first poll can already contain an arrival: do not mistake it for an old seated guest.
+        // Older orders on refresh still hydrate directly into their seats.
+        const justArrived = Number.isFinite(tick) && Number.isFinite(customer.order_tick) &&
+          customer.order_tick > 0 && tick >= customer.order_tick && tick - customer.order_tick < 60;
+        if ((hydrate && !justArrived) || reduced || customer.state === "eating") this.seat(actor, customer.state);
+      }
+      actor.customer = { ...customer };
+      if (actor.phase !== "leaving" && customer.state === "eating" && actor.phase === "entering") {
+        this.seat(actor, "eating"); // Service may precede the visual arrival; never delay gameplay.
+      }
+      if (["waiting", "eating"].includes(actor.phase)) actor.phase = customer.state === "eating" ? "eating" : "waiting";
+    }
+    for (const [id, actor] of this.actors) {
+      if (present.has(id) || actor.phase === "leaving") continue;
+      if (reduced) { this.actors.delete(id); continue; }
+      const wasSeated = ["sitting", "waiting", "eating"].includes(actor.phase);
+      // Retrace only the path actually traversed if patience expired while walking.
+      const walked = actor.phase === "entering" ? actor.path.slice(0, actor.segment + 1) : actor.route;
+      this.travel(actor, [[...actor.pos], ...walked.slice().reverse()], "leaving");
+      actor.stand = wasSeated ? .22 : 0;
+      actor.elapsed = 0;
+    }
+    if (reduced) for (const [id, actor] of this.actors) {
+      if (actor.phase === "leaving") this.actors.delete(id);
+      else this.seat(actor, actor.customer.state);
+    }
+  }
+  seat(actor, state) {
+    actor.pos = [...actor.seat]; actor.phase = state === "eating" ? "eating" : "waiting"; actor.elapsed = 0;
+  }
+  travel(actor, path, phase) {
+    actor.path = path; actor.segment = 0; actor.phase = phase; actor.elapsed = 0;
+    const distance = path.slice(1).reduce((sum, p, i) => sum + Math.hypot(p[0] - path[i][0], p[1] - path[i][1]), 0);
+    actor.speed = distance / Math.min(2.2, Math.max(.8, distance / 7));
+  }
+  update(dt, reduced = false) {
+    if (reduced) {
+      for (const [id, actor] of this.actors) {
+        if (actor.phase === "leaving") this.actors.delete(id);
+        else this.seat(actor, actor.customer.state);
+      }
+      return false;
+    }
+    this.clock += dt;
+    let animated = false;
+    for (const [id, actor] of this.actors) {
+      const moving = actor.phase === "entering" || actor.phase === "leaving";
+      if (moving || actor.phase === "sitting" || actor.phase === "eating") animated = true;
+      actor.elapsed += dt;
+      if (actor.phase === "sitting") {
+        if (actor.elapsed >= .22) this.seat(actor, actor.customer.state);
+        continue;
+      }
+      if (!moving || actor.elapsed < (actor.stand ?? 0)) continue;
+      let distance = dt * actor.speed;
+      while (actor.segment < actor.path.length - 1) {
+        const target = actor.path[actor.segment + 1];
+        const dx = target[0] - actor.pos[0], dz = target[1] - actor.pos[1], length = Math.hypot(dx, dz);
+        if (length > 1e-8) {
+          actor.row = Math.abs(dx) > Math.abs(dz) ? 2 : dz > 0 ? 1 : 0;
+          actor.facing = actor.row === 2 && dx < 0 ? -1 : 1;
+        }
+        if (length > distance) {
+          actor.pos[0] += dx * distance / length; actor.pos[1] += dz * distance / length; break;
+        }
+        actor.pos = [...target]; distance -= length; actor.segment++;
+      }
+      if (actor.segment === actor.path.length - 1) {
+        if (actor.phase === "leaving") this.actors.delete(id);
+        else { actor.phase = "sitting"; actor.elapsed = 0; actor.stand = 0; }
+      }
+    }
+    return animated;
+  }
+}
+const npcWalk = new NpcWalkController();
 const fishSprites = { ca_linh: loadSprite("ca-linh"), ca_loc: loadSprite("ca-loc") };
 const crocodileArt = loadSprite("ca-sau");
 const itemIcons = {
@@ -1338,9 +1516,23 @@ function project(bounds, gather, w, h) {
 
 let visualBlend = 1;
 function motionFrame(mode) {
-  if (motionDelta === 0 || reducedMotion.matches) return 0;
-  const { frames, distance } = motionCycles[mode];
-  return 1 + Math.floor((motionOffset + motionDelta * visualBlend) / distance) % frames;
+  if (!playerMotion.moving || !playerMotionEnabled()) return 0;
+  return 1 + Math.floor(playerMotion.phase) % motionCycles[mode].frames;
+}
+function updatePlayerMotion(now, active) {
+  const dt = playerMotion.frameAt === null ? 0 : Math.min(.05, Math.max(0, (now - playerMotion.frameAt) / 1000));
+  playerMotion.frameAt = active ? now : null;
+  const wasMoving = playerMotion.moving;
+  const cycle = motionCycles[snap?.mode];
+  // Allow normal polling jitter, but never keep stepping after snapshots stop arriving.
+  const fresh = now - playerMotion.sampledAt <= Math.max(180, poseMs * 3);
+  playerMotion.moving = Boolean(active && cycle && playerMotionEnabled() && fresh && playerMotion.speed > 1e-5);
+  if (playerMotion.moving) {
+    const normalSpeed = snap.mode === "quan" ? snap.meta?.walk_speed : snap.meta?.swim_speed;
+    const rate = num(normalSpeed) && normalSpeed > 0 ? playerMotion.speed / normalSpeed : 1;
+    playerMotion.phase = (playerMotion.phase + dt * cycle.fps * Math.min(1.6, Math.max(.3, rate))) % cycle.frames;
+  } else playerMotion.phase = 0;
+  return playerMotion.moving || wasMoving;
 }
 function blendPosition(pos, earlier) {
   return visualBlend < 1 && position(earlier) ? earlier.map((v, i) => v + (pos[i] - v) * visualBlend) : pos;
@@ -1654,6 +1846,27 @@ function drawReservation(r, x, y, size) {
 }
 
 let quanFixtures, walkAtlas;
+function drawNpc(actor, at, size) {
+  const [x, y] = at(actor.pos), sheet = npcSheets[actor.gender];
+  const seated = ["waiting", "eating"].includes(actor.phase);
+  let sitAlpha = seated ? 1 : actor.phase === "sitting" ? Math.min(1, actor.elapsed / .22) :
+    actor.phase === "leaving" && actor.stand ? Math.max(0, 1 - actor.elapsed / actor.stand) : 0;
+  const bob = npcMotionEnabled() && actor.phase === "eating" ? Math.sin(npcWalk.clock * 5) * .7 : 0;
+  ellipse(x, y, size * .18, size * .045, "#211d1760");
+  const drawPose = (image, alpha, crop, facing = 1, dy = 0) => {
+    if (alpha <= 0) return;
+    ctx.save(); ctx.globalAlpha *= alpha;
+    if (image.naturalWidth) drawSprite(image, x, y + dy, size * .95, 0, facing, 1, crop);
+    else drawSprite(guests[actor.gender], x, y + dy, size * .95, 0, 1, 1);
+    ctx.restore();
+  };
+  const cw = sheet.walk.naturalWidth / 5, ch = sheet.walk.naturalHeight / 3;
+  const column = !npcMotionEnabled() || sitAlpha > 0 ? 0 : 1 + Math.floor(npcWalk.clock * 9) % 4;
+  drawPose(sheet.walk, 1 - sitAlpha, [column * cw, actor.row * ch, cw, ch], actor.facing);
+  const sw = sheet.sit.naturalWidth / 4, sh = sheet.sit.naturalHeight;
+  const pose = actor.customer.state === "eating" ? (!npcMotionEnabled() ? 2 : Math.floor(npcWalk.clock * 1.5) % 3 === 2 ? 3 : 2) : 0;
+  drawPose(sheet.sit, sitAlpha, [pose * sw, 0, sw, sh], 1, bob + (1 - sitAlpha) * -3);
+}
 function drawQuan(at, size, w) {
   quanFixtures ??= {
     B1: loadSprite("bep-mot"), B2: loadSprite("bep-hai"),
@@ -1676,20 +1889,27 @@ function drawQuan(at, size, w) {
   }
   const customers = list(snap.customers);
   const reservations = list(snap.reservations);
+  const layers = [];
   for (const table of list(snap.tables)) {
     if (!position(table.pos)) continue;
     const [x, y] = at(table.pos);
     const sprite = known(quanFixtures, table.id);
-    if (sprite) drawSprite(sprite, x, y, w * .105, 0, 1, 1);
+    if (sprite) layers.push({ y, draw: () => drawSprite(sprite, x, y, w * .105, 0, 1, 1) });
+  }
+  for (const actor of npcWalk.actors.values()) {
+    layers.push({ y: at(actor.pos)[1], draw: () => drawNpc(actor, at, size) });
+  }
+  // Rear seat bodies are occluded by their table; walking feet determine depth.
+  layers.sort((a, b) => a.y - b.y).forEach(layer => layer.draw());
+  for (const actor of npcWalk.actors.values()) {
+    if (actor.phase === "leaving") continue;
+    const [x, y] = at(actor.pos);
+    drawCustomerBar(actor.customer, x, y - size * .95 - 6, size);
+  }
+  for (const table of list(snap.tables)) {
+    if (!position(table.pos)) continue;
+    const [x, y] = at(table.pos);
     const customer = customers.find(c => c.table_id === table.id);
-    if (customer) {
-      const offset = x > w / 2 ? size * -.34 : size * .34;
-      const id = Number(String(customer.id).match(/\d+$/)?.[0] ?? 0);
-      ellipse(x + offset, y + 4, size * .19, 5, "#211d17a0");
-      drawSprite(guests[id % guests.length], x + offset, y + 4, size * .74, 0, 1, 1);
-      // Cùng điểm neo với sprite khách (đáy tại y + 4, cao tối đa size * .74).
-      drawCustomerBar(customer, x + offset, y + 4 - size * .74 - 6, size);
-    }
     pin(x, y, table.id ?? "Bàn", Boolean(customer));
     drawReservation(reservations.find(r => r.table_id === table.id && !["served", "failed"].includes(r.state)), x, y, size);
   }
@@ -1845,12 +2065,18 @@ function draw() {
 
 
 function invalidate() { paintPending = true; }
+let npcFrameAt = null;
 function frame(now) {
   const active = snap && !day?.paused && !snap.finished && !snap.error && !problem && !document.hidden;
+  const npcActive = snap?.mode === "quan" && !day?.paused && !snap.error && !problem && !document.hidden;
+  const dt = npcFrameAt === null ? 0 : Math.max(0, Math.min(.05, (now - npcFrameAt) / 1000));
+  npcFrameAt = npcActive ? now : null;
+  const npcAnimated = snap?.mode === "quan" && npcWalk.update(npcActive ? dt : 0, !npcMotionEnabled());
+  const playerAnimated = updatePlayerMotion(now, active);
   const playingDay = day && active;
-  const blend = active && (playingDay || motionDelta > 0) && previousPose && !reducedMotion.matches ?
+  const blend = active && (playingDay || motionDelta > 0) && previousPose && playerMotionEnabled() ?
     Math.max(0, Math.min(1, (now - poseAt) / poseMs)) : 1;
-  if (paintPending || playingDay || blend !== visualBlend || (renderBenchmark && active)) {
+  if (paintPending || playingDay || blend !== visualBlend || playerAnimated || (npcAnimated && npcActive) || (renderBenchmark && active)) {
     paintPending = false;
     visualBlend = blend;
     $("hit-feedback").hidden = !playingDay || reducedMotion.matches || now >= hitUntil;
